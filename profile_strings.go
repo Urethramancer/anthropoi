@@ -1,4 +1,4 @@
-package profiles
+package anthropoi
 
 const profileTable = `CREATE TABLE public.profiles
 (

@@ -1,10 +1,9 @@
-package users
+package anthropoi
 
 import (
 	"database/sql"
 	"time"
 
-	"github.com/Urethramancer/anthropoi/profiles"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -34,7 +33,7 @@ type User struct {
 	 */
 
 	// Profiles for specific sites.
-	Profiles []*profiles.Profile
+	Profiles []*Profile
 
 	// First name of user (optional).
 	First string
@@ -46,18 +45,8 @@ type User struct {
 	Tokens string
 }
 
-// InitTables creates tables and triggers for users.
-func InitTables(db *sql.DB) error {
-	_, err := db.Exec(userTable)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// New creates an initialised User structure. This may fail.
-func New(username, password, email, data string, cost int) (*User, error) {
+// AddUser creates an initialised User structure. This may fail.
+func AddUser(username, password, email, data string, cost int) (*User, error) {
 	acc := &User{
 		Usermame: username,
 		Email:    email,
@@ -70,6 +59,13 @@ func New(username, password, email, data string, cost int) (*User, error) {
 	}
 
 	return acc, nil
+}
+
+// GetUser returns a User based on an ID.
+func GetUser(db *sql.DB, id int64) *User {
+	var u User
+	// q := "SELECT * FROM public.users WHERE"
+	return &u
 }
 
 // SetPassword to a new one.

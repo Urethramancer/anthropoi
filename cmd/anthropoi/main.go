@@ -10,12 +10,18 @@ import (
 )
 
 func main() {
-	db := openExisting()
+	var err error
+	db, err := openExisting()
+	if err != nil {
+		fmt.Printf("Error opening database: %s", err.Error)
+		os.Exit(2)
+	}
+
 	defer db.Close()
 	name := getenv("DB_NAME", "accounts")
-	if !anthropoi.DatabaseExists(db, name) {
+	if !db.DatabaseExists(name) {
 		fmt.Printf("No database. Setting up '%s' on '%s:%s'\n", getenv("DB_NAME", "accounts"), getenv("DB_HOST", "localhost"), getenv("DB_PORT", "5432"))
-		db = openNew()
+		db, err = openNew()
 		defer db.Close()
 		q := `CREATE DATABASE ` + name + `;`
 		_, err := db.Exec(q)
@@ -24,8 +30,13 @@ func main() {
 			os.Exit(2)
 		}
 
-		db = openExisting()
-		err = anthropoi.InitDatabase(db)
+		db, err = openExisting()
+		if err != nil {
+			fmt.Printf("Error opening database: %s", err.Error)
+			os.Exit(2)
+		}
+
+		err = db.InitDatabase()
 		if err != nil {
 			fmt.Printf("Error initalising tables: %s", err.Error())
 			os.Exit(2)
@@ -42,8 +53,8 @@ func getenv(key, alt string) string {
 	return s
 }
 
-func openExisting() *sql.DB {
-	src := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+func openExisting() (*anthropoi.DBM, error) {
+	return anthropoi.OpenDB(
 		getenv("DB_HOST", "localhost"),
 		getenv("DB_PORT", "5432"),
 		getenv("DB_USER", "postgres"),
@@ -51,18 +62,17 @@ func openExisting() *sql.DB {
 		getenv("DB_NAME", "accounts"),
 		getenv("DB_MODE", "disable"),
 	)
-	return openDB(src)
 }
 
-func openNew() *sql.DB {
-	src := fmt.Sprintf("host=%s port=%s user=%s password=%s sslmode=%s",
+func openNew() (*anthropoi.DBM, error) {
+	return anthropoi.OpenDB(
 		getenv("DB_HOST", "localhost"),
 		getenv("DB_PORT", "5432"),
 		getenv("DB_USER", "postgres"),
 		getenv("DB_PASSWORD", ""),
+		"",
 		getenv("DB_MODE", "disable"),
 	)
-	return openDB(src)
 }
 
 func openDB(src string) *sql.DB {

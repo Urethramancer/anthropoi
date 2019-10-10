@@ -1,5 +1,4 @@
-// Package inspect contains functions to query table structures, constraints and keys.
-package inspect
+package anthropoi
 
 // Gets the columns, types and defaults for a table.
 const tableQuery = `select column_name, data_type, character_maximum_length, column_default, is_nullable, numeric_precision, table_schema

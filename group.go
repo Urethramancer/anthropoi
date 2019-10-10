@@ -1,7 +1,6 @@
-package groups
+package anthropoi
 
 import (
-	"database/sql"
 	"sort"
 )
 
@@ -13,16 +12,6 @@ type Group struct {
 	Name string
 	// Permissions which can be set in this group.
 	Permissions []string
-}
-
-// InitTables creates tables and triggers for groups.
-func InitTables(db *sql.DB) error {
-	_, err := db.Exec(groupTables)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // New creates an initialised group structure.

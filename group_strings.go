@@ -1,4 +1,4 @@
-package groups
+package anthropoi
 
 const groupTables = `CREATE TABLE public.groups
 (

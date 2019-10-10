@@ -1,7 +1,6 @@
-package profiles
+package anthropoi
 
 import (
-	"database/sql"
 	"strings"
 )
 
@@ -21,18 +20,8 @@ type Profile struct {
 	Data string
 }
 
-// InitTables creates tables and triggers for profiles.
-func InitTables(db *sql.DB) error {
-	_, err := db.Exec(profileTable)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// New creates an initialised profile structure.
-func New(id, user int64, domain, data string) *Profile {
+// AddProfile creates an initialised profile structure.
+func AddProfile(id, user int64, domain, data string) *Profile {
 	p := &Profile{
 		ID:     id,
 		User:   user,
