@@ -1,7 +1,6 @@
 package anthropoi
 
 import (
-	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -88,7 +87,6 @@ func (db *DBM) SaveUser(u *User) (int64, error) {
 	res, err := db.Exec("INSERT INTO public.users (id,username,password,salt,email,locked,first,last,data,tokens) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT ON CONSTRAINT key_users_pkey DO UPDATE SET username=EXCLUDED.username,password=EXCLUDED.password,salt=EXCLUDED.salt,email=EXCLUDED.email,locked=EXCLUDED.locked,first=EXCLUDED.first,last=EXCLUDED.last,data=EXCLUDED.data,tokens=EXCLUDED.tokens RETURNING id;",
 		u.ID, u.Usermame, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens)
 	id, err := res.LastInsertId()
-	fmt.Printf("Last inserted: %d", id)
 	if err != nil {
 		return 0, err
 	}
