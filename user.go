@@ -1,7 +1,7 @@
 package anthropoi
 
 import (
-	"database/sql"
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -46,26 +46,54 @@ type User struct {
 }
 
 // AddUser creates an initialised User structure. This may fail.
-func AddUser(username, password, email, data string, cost int) (*User, error) {
-	acc := &User{
+func (db *DBM) AddUser(username, password, email, data string, cost int) (*User, error) {
+	u := &User{
 		Usermame: username,
 		Email:    email,
 		Salt:     genString(32),
 		Data:     data,
 	}
-	err := acc.SetPassword(password, cost)
+	err := u.SetPassword(password, cost)
 	if err != nil {
 		return nil, err
 	}
 
-	return acc, nil
+	return u, nil
 }
 
 // GetUser returns a User based on an ID.
-func GetUser(db *sql.DB, id int64) *User {
+func (db *DBM) GetUser(id int64) (*User, error) {
 	var u User
-	// q := "SELECT * FROM public.users WHERE"
-	return &u
+	err := db.QueryRow("SELECT * FROM public.users WHERE id='?'", id).Scan(&u)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+// GetUserByName for when you don't have an id.
+func (db *DBM) GetUserByName(name string) (*User, error) {
+	var u User
+	err := db.QueryRow("", name).Scan(&u)
+	if err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+// SaveUser via upsert.
+func (db *DBM) SaveUser(u *User) (int64, error) {
+	res, err := db.Exec("INSERT INTO public.users (id,username,password,salt,email,locked,first,last,data,tokens) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT ON CONSTRAINT key_users_pkey DO UPDATE SET username=EXCLUDED.username,password=EXCLUDED.password,salt=EXCLUDED.salt,email=EXCLUDED.email,locked=EXCLUDED.locked,first=EXCLUDED.first,last=EXCLUDED.last,data=EXCLUDED.data,tokens=EXCLUDED.tokens RETURNING id;",
+		u.ID, u.Usermame, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens)
+	id, err := res.LastInsertId()
+	fmt.Printf("Last inserted: %d", id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 // SetPassword to a new one.
