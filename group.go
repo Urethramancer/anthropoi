@@ -14,8 +14,8 @@ type Group struct {
 	Permissions []string
 }
 
-// New creates an initialised group structure.
-func New(id int64, name string, permissions []string) *Group {
+// NewGroup creates an initialised group structure.
+func NewGroup(id int64, name string, permissions []string) *Group {
 	g := &Group{
 		ID:          id,
 		Name:        name,

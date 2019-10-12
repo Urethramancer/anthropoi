@@ -2,36 +2,93 @@ package anthropoi
 
 import (
 	"database/sql"
-	"fmt"
+	"strings"
+
+	"github.com/Urethramancer/signor/stringer"
 )
 
 // DBM is a DB manager for user accounts and groups.
 type DBM struct {
 	*sql.DB
+	host     string
+	port     string
+	user     string
+	password string
+	name     string
+	mode     string
+	cs       *stringer.Stringer
 }
 
-func OpenDB(host, port, user, password, name, mode string) (*DBM, error) {
-	dbm := DBM{}
-	if mode != "enable" && mode != "disable" {
-		mode = "disable"
+// New DBM setup.
+func New(host, port, user, password, name, mode string) *DBM {
+	return &DBM{
+		host:     host,
+		port:     port,
+		user:     user,
+		password: password,
+		name:     name,
+		mode:     mode,
+		cs:       stringer.New(),
 	}
-	src := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		host, port, user, password, name, mode,
+}
+
+// OpenDB and return a DBM struct.
+func (db *DBM) Connect(name string) error {
+	var err error
+	db.name = name
+	db.DB, err = sql.Open("postgres", db.ConnectionString())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *DBM) ConnectionString() string {
+	db.cs.Reset()
+	db.cs.WriteStrings(
+		"host=", db.host, " ",
+		"port=", db.port, " ",
+		"user=", db.user, " ",
 	)
 
-	var err error
-	dbm.DB, err = sql.Open("postgres", src)
-	if err != nil {
-		return nil, err
+	if db.password != "" {
+		db.cs.WriteStrings("password=", db.password, " ")
+	}
+	if db.name != "" {
+		db.cs.WriteStrings("dbname=", db.name, " ")
 	}
 
-	return &dbm, nil
+	if db.mode == "enable" {
+		db.cs.WriteString("sslmode=enable")
+	} else {
+		db.cs.WriteString("sslmode=disable")
+	}
+
+	return db.cs.String()
+}
+
+// Create the database and retain the name.
+func (db *DBM) Create(name string) error {
+	q := strings.Replace(databaseDefinitions, "{NAME}", name, 1)
+	_, err := db.Exec(q)
+	return err
 }
 
 // InitDatabase creates the tables, functions and triggers required for the full account system.
-func (db *DBM) InitDatabase() error {
+func (db *DBM) InitDatabase(name string) error {
 	var err error
-	_, err = db.Exec(functionDefinitions)
+	err = db.Close()
+	if err != nil {
+		return err
+	}
+
+	db.DB, err = sql.Open("postgres", db.ConnectionString())
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(databaseTriggers)
 	if err != nil {
 		return err
 	}
@@ -47,11 +104,7 @@ func (db *DBM) InitDatabase() error {
 	}
 
 	_, err = db.Exec(groupTables)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // DatabaseExists checks for the existence of the actual database.

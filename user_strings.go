@@ -22,7 +22,8 @@ func genString(size int) string {
 	return string(s)
 }
 
-const userTable = `CREATE TABLE public.users
+const userTable = `BEGIN WORK;
+CREATE TABLE IF NOT EXISTS public.users
 (
 	-- id auto-increments
 	id serial NOT NULL,
@@ -40,13 +41,15 @@ const userTable = `CREATE TABLE public.users
 	last character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	data json NOT NULL DEFAULT '{}'::json,
 	tokens json NOT NULL DEFAULT '{}'::json,
-	CONSTRAINT users_pkey PRIMARY KEY (id),
-	CONSTRAINT username_unique UNIQUE (username),
-	CONSTRAINT email_unique UNIQUE (email)
+	CONSTRAINT key_users_pkey PRIMARY KEY (id),
+	CONSTRAINT text_username_unique UNIQUE (username),
+	CONSTRAINT text_email_unique UNIQUE (email)
 ) WITH (OIDS = FALSE) TABLESPACE pg_default;
 
 -- Set the current timestamp whenever a row is inserted.
-CREATE TRIGGER set_users_timestamp
+DROP TRIGGER IF EXISTS trigger_users_timestamp ON public.users;
+CREATE TRIGGER trigger_users_timestamp
 	BEFORE INSERT ON public.users
 	FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+COMMIT WORK;
 `
