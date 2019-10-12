@@ -21,7 +21,7 @@ type DBM struct {
 
 // New DBM setup.
 func New(host, port, user, password, name, mode string) *DBM {
-	return &DBM{
+	dbm := &DBM{
 		host:     host,
 		port:     port,
 		user:     user,
@@ -30,6 +30,23 @@ func New(host, port, user, password, name, mode string) *DBM {
 		mode:     mode,
 		cs:       stringer.New(),
 	}
+
+	if host == "" {
+		dbm.host = "localhost"
+	}
+
+	if port == "" {
+		dbm.port = "5432"
+	}
+
+	if user == "" {
+		dbm.user = "postgres"
+	}
+
+	if mode == "" {
+		dbm.mode = "disable"
+	}
+	return dbm
 }
 
 // OpenDB and return a DBM struct.
@@ -55,6 +72,7 @@ func (db *DBM) ConnectionString() string {
 	if db.password != "" {
 		db.cs.WriteStrings("password=", db.password, " ")
 	}
+
 	if db.name != "" {
 		db.cs.WriteStrings("dbname=", db.name, " ")
 	}
@@ -72,6 +90,9 @@ func (db *DBM) ConnectionString() string {
 func (db *DBM) Create(name string) error {
 	q := strings.Replace(databaseDefinitions, "{NAME}", name, 1)
 	_, err := db.Exec(q)
+	if err == nil {
+		db.name = name
+	}
 	return err
 }
 
