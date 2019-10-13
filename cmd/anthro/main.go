@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/Urethramancer/anthropoi"
-
 	"github.com/Urethramancer/signor/log"
 	"github.com/Urethramancer/signor/opt"
 	_ "github.com/lib/pq"

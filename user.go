@@ -60,14 +60,18 @@ func (db *DBM) AddUser(username, password, email, first, last, data, tokens stri
 		return nil, err
 	}
 
-	var id int64
-	q := "INSERT INTO public.users"
-	err = db.QueryRow(q).Scan(&id)
+	q := "INSERT INTO public.users (username,password,salt,email,first,last,data,tokens) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id;"
+	st, err := db.Prepare(q)
 	if err != nil {
 		return nil, err
 	}
 
-	u.ID = id
+	defer st.Close()
+	err = st.QueryRow(u.Usermame, u.Password, u.Salt, u.Email, u.First, u.Last, u.Data, u.Tokens).Scan(&u.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	return u, nil
 }
 
@@ -129,7 +133,7 @@ func (db *DBM) DeleteUserByName(name string) error {
 
 // SetPassword generates a new salt and sets the password.
 func (u *User) SetPassword(password string, cost int) error {
-	u.Salt = genString(32)
+	u.Salt = GenString(32)
 	s := password + u.Salt
 	hash, err := bcrypt.GenerateFromPassword([]byte(s), cost)
 	if err != nil {
