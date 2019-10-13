@@ -13,7 +13,8 @@ import (
 // Options holds all the tool commands.
 var Options struct {
 	opt.DefaultHelp
-	User CmdUser `command:"user" help:"User management."`
+	User  CmdUser  `command:"user" help:"User management."`
+	Group CmdGroup `command:"group" help:"Group management."`
 }
 
 func main() {
