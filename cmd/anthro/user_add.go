@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 
+	"github.com/Urethramancer/anthropoi"
 	"github.com/Urethramancer/signor/opt"
 )
 
@@ -17,5 +18,11 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
+	db := anthropoi.New(host, port, username, password, name, ssl)
+	m("%+v", db)
+	err := db.Connect(name)
+	if err != nil {
+		return err
+	}
 	return nil
 }
