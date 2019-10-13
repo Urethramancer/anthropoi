@@ -17,9 +17,5 @@ type CmdUser struct {
 
 // Run user
 func (cmd *CmdUser) Run(in []string) error {
-	if cmd.Help {
-		return errors.New(opt.ErrorUsage)
-	}
-
-	return nil
+	return errors.New(opt.ErrorUsage)
 }
