@@ -121,13 +121,13 @@ func (db *DBM) GetUserByName(name string) (*User, error) {
 
 // DeleteUser by ID.
 func (db *DBM) DeleteUser(id int64) error {
-	_, err := db.Exec("DELETE FROM public.users WHERE id=$1 LIMIT 1;", id)
+	_, err := db.Exec("DELETE FROM public.users WHERE id=$1;", id)
 	return err
 }
 
 // DeleteUserByName for when that's needed.
 func (db *DBM) DeleteUserByName(name string) error {
-	_, err := db.Exec("DELETE FROM public.users WHERE username=$1 LIMIT 1;", name)
+	_, err := db.Exec("DELETE FROM public.users WHERE username=$1;", name)
 	return err
 }
 
