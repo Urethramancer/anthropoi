@@ -1,7 +1,7 @@
 package anthropoi
 
 const groupTables = `BEGIN WORK;
-CREATE TABLE public.groups
+CREATE TABLE IF NOT EXISTS public.groups
 (
 	-- id auto-increments
 	id serial NOT NULL,
@@ -19,7 +19,7 @@ CREATE TRIGGER trigger_groups_timestamp
 	FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 
 -- Permissions for all groups
-CREATE TABLE public.permissions
+CREATE TABLE IF NOT EXISTS public.permissions
 (
 	id serial NOT NULL,
 	groupid integer NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE public.permissions
 
 -- Users can have multiple membership relations per domain to this table,
 -- since groups can have multiple application-defined permissions.
-CREATE TABLE public.membership
+CREATE TABLE IF NOT EXISTS public.membership
 (
 	-- user this membership is for.
 	userid integer NOT NULL,

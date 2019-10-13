@@ -1,7 +1,7 @@
 package anthropoi
 
 const profileTable = `BEGIN WORK;
-CREATE TABLE public.profiles
+CREATE TABLE IF NOT EXISTS public.profiles
 (
 	-- id auto-increments
 	id serial NOT NULL,

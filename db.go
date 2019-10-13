@@ -88,6 +88,9 @@ func (db *DBM) ConnectionString() string {
 
 // Create the database and retain the name.
 func (db *DBM) Create(name string) error {
+	if name == "" {
+		name = DefaultName
+	}
 	q := strings.Replace(databaseDefinitions, "{NAME}", name, 1)
 	_, err := db.Exec(q)
 	if err == nil {
@@ -97,11 +100,13 @@ func (db *DBM) Create(name string) error {
 }
 
 // InitDatabase creates the tables, functions and triggers required for the full account system.
-func (db *DBM) InitDatabase(name string) error {
+func (db *DBM) InitDatabase() error {
 	var err error
-	err = db.Close()
-	if err != nil {
-		return err
+	if db.DB != nil {
+		err = db.Close()
+		if err != nil {
+			return err
+		}
 	}
 
 	db.DB, err = sql.Open("postgres", db.ConnectionString())
