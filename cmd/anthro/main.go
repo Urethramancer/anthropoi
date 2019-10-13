@@ -40,7 +40,6 @@ func main() {
 			os.Exit(2)
 		}
 
-		println("Opened " + db.ConnectionString())
 		defer db.Close()
 		err = db.Create(getenv("DB_NAME", "accounts"))
 		if err != nil {
