@@ -42,8 +42,7 @@ CREATE TABLE IF NOT EXISTS public.users
 	data json NOT NULL DEFAULT '{}'::json,
 	tokens json NOT NULL DEFAULT '{}'::json,
 	CONSTRAINT key_users_pkey PRIMARY KEY (id),
-	CONSTRAINT text_username_unique UNIQUE (username),
-	CONSTRAINT text_email_unique UNIQUE (email)
+	CONSTRAINT text_username_unique UNIQUE (username)
 ) WITH (OIDS = FALSE) TABLESPACE pg_default;
 
 -- Set the current timestamp whenever a row is inserted.
