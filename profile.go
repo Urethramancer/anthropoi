@@ -20,8 +20,8 @@ type Profile struct {
 	Data string
 }
 
-// AddProfile creates an initialised profile structure.
-func AddProfile(id, user int64, domain, data string) *Profile {
+// AddProfile creates a new profile.
+func (db *DBM) AddProfile(id, user int64, domain, data string) *Profile {
 	p := &Profile{
 		ID:     id,
 		User:   user,
