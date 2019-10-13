@@ -20,9 +20,10 @@ var Options struct {
 	Name     string `short:"n" long:"name" help:"Name of the database to create." default:"accounts"`
 	SSL      bool   `short:"s" long:"ssl" help:"Require SSL to connect."`
 
-	Init  CmdInit  `command:"init" help:"Initialise database and tables."`
-	User  CmdUser  `command:"user" help:"User management." aliases:"u"`
-	Group CmdGroup `command:"group" help:"Group management." aliases:"g"`
+	Init    CmdInit    `command:"init" help:"Initialise database and tables."`
+	User    CmdUser    `command:"user" help:"User management." aliases:"u"`
+	Profile CmdProfile `command:"profile" help:"Profile/site management." aliases:"pro"`
+	Group   CmdGroup   `command:"group" help:"Group management." aliases:"g"`
 }
 
 var m func(string, ...interface{})
