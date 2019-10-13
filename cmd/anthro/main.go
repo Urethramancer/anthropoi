@@ -5,8 +5,16 @@ import (
 	"os"
 
 	"github.com/Urethramancer/anthropoi"
+	"github.com/Urethramancer/signor/log"
+	"github.com/Urethramancer/signor/opt"
 	_ "github.com/lib/pq"
 )
+
+// Options holds all the tool commands.
+var Options struct {
+	opt.DefaultHelp
+	User CmdUser `command:"user" help:"User management."`
+}
 
 func main() {
 	var err error
@@ -58,6 +66,18 @@ func main() {
 			fmt.Printf("Error initalising database: %s\n", err.Error())
 			os.Exit(2)
 		}
+	}
+
+	a := opt.Parse(&Options)
+	if Options.Help || len(os.Args) < 2 {
+		a.Usage()
+		return
+	}
+
+	err = a.RunCommand(false)
+	if err != nil {
+		log.Default.Msg("Error running: %s", err.Error())
+		os.Exit(2)
 	}
 }
 
