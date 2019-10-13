@@ -1,6 +1,7 @@
 package anthropoi
 
 import (
+	"fmt"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -44,26 +45,57 @@ type User struct {
 	Tokens string
 }
 
-// AddUser creates an initialised User structure. This may fail.
-func (db *DBM) AddUser(username, password, email, data string, cost int) (*User, error) {
+// AddUser creates a new User. This may fail.
+func (db *DBM) AddUser(username, password, email, first, last, data, tokens string, cost int) (*User, error) {
 	u := &User{
 		Usermame: username,
 		Email:    email,
-		Salt:     genString(32),
+		First:    first,
+		Last:     last,
 		Data:     data,
+		Tokens:   tokens,
 	}
 	err := u.SetPassword(password, cost)
 	if err != nil {
 		return nil, err
 	}
 
+	var id int64
+	q := "INSERT INTO public.users"
+	err = db.QueryRow(q).Scan(&id)
+	if err != nil {
+		return nil, err
+	}
+
+	u.ID = id
 	return u, nil
+}
+
+// UpdateUser saves an existing user by ID.
+func (db *DBM) SaveUser(u *User) error {
+	if u.Data == "" {
+		u.Data = "{}"
+	}
+
+	if u.Tokens == "" {
+		u.Tokens = "{}"
+	}
+
+	q := `UPDATE public.users SET username=$1,password=$2,salt=$3,email=$4,locked=$5,first=$6,last=$7,data=$8,tokens=$9 WHERE id=$10;`
+	_, err := db.Exec(q, u.Usermame, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.ID)
+	if err != nil {
+		fmt.Printf("WTF? %s\n", err.Error())
+		return err
+	}
+
+	return nil
 }
 
 // GetUser returns a User based on an ID.
 func (db *DBM) GetUser(id int64) (*User, error) {
 	var u User
-	err := db.QueryRow("SELECT * FROM public.users WHERE id='?'", id).Scan(&u)
+	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE id=$1 LIMIT 1", id).Scan(
+		&u.ID, &u.Usermame, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +106,8 @@ func (db *DBM) GetUser(id int64) (*User, error) {
 // GetUserByName for when you don't have an id.
 func (db *DBM) GetUserByName(name string) (*User, error) {
 	var u User
-	err := db.QueryRow("", name).Scan(&u)
+	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE username=$1 LIMIT 1", name).Scan(
+		&u.ID, &u.Usermame, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -82,20 +115,9 @@ func (db *DBM) GetUserByName(name string) (*User, error) {
 	return &u, nil
 }
 
-// SaveUser via upsert.
-func (db *DBM) SaveUser(u *User) (int64, error) {
-	res, err := db.Exec("INSERT INTO public.users (id,username,password,salt,email,locked,first,last,data,tokens) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT ON CONSTRAINT key_users_pkey DO UPDATE SET username=EXCLUDED.username,password=EXCLUDED.password,salt=EXCLUDED.salt,email=EXCLUDED.email,locked=EXCLUDED.locked,first=EXCLUDED.first,last=EXCLUDED.last,data=EXCLUDED.data,tokens=EXCLUDED.tokens RETURNING id;",
-		u.ID, u.Usermame, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens)
-	id, err := res.LastInsertId()
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
-}
-
-// SetPassword to a new one.
+// SetPassword generates a new salt and sets the password.
 func (u *User) SetPassword(password string, cost int) error {
+	u.Salt = genString(32)
 	s := password + u.Salt
 	hash, err := bcrypt.GenerateFromPassword([]byte(s), cost)
 	if err != nil {
