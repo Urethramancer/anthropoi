@@ -78,3 +78,8 @@ func getenv(key, alt string) string {
 
 	return s
 }
+
+func connect() (*anthropoi.DBM, error) {
+	db := anthropoi.New(host, port, username, password, ssl)
+	return db, db.Connect(name)
+}

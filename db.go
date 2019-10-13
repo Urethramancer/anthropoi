@@ -20,13 +20,12 @@ type DBM struct {
 }
 
 // New DBM setup.
-func New(host, port, user, password, name, mode string) *DBM {
+func New(host, port, user, password, mode string) *DBM {
 	dbm := &DBM{
 		host:     host,
 		port:     port,
 		user:     user,
 		password: password,
-		name:     name,
 		mode:     mode,
 		cs:       stringer.New(),
 	}
@@ -49,7 +48,7 @@ func New(host, port, user, password, name, mode string) *DBM {
 	return dbm
 }
 
-// OpenDB and return a DBM struct.
+// OpenDB and set the pointer in the DBM struct.
 func (db *DBM) Connect(name string) error {
 	var err error
 	db.name = name

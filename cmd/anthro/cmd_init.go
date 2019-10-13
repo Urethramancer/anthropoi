@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 
-	"github.com/Urethramancer/anthropoi"
 	"github.com/Urethramancer/signor/opt"
 )
 
@@ -19,17 +18,7 @@ func (cmd *CmdInit) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
-	var err error
-	db := anthropoi.New(
-		getenv("DB_HOST", host),
-		getenv("DB_PORT", port),
-		getenv("DB_USER", username),
-		getenv("DB_PASSWORD", password),
-		"",
-		getenv("DB_MODE", ssl),
-	)
-
-	err = db.Connect("")
+	db, err := connect()
 	if err != nil {
 		e("Error opening database: %s", err.Error())
 		return err

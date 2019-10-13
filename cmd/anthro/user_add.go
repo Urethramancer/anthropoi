@@ -24,12 +24,12 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
-	db := anthropoi.New(host, port, username, password, name, ssl)
-	err := db.Connect(name)
+	db, err := connect()
 	if err != nil {
 		return err
 	}
 
+	defer db.Close()
 	pw := anthropoi.GenString(14)
 	u, err := db.AddUser(cmd.Name, pw, cmd.Email, cmd.First, cmd.Last, "{}", "{}", cmd.Cost)
 	if err != nil {

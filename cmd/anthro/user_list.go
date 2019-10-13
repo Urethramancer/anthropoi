@@ -17,5 +17,11 @@ func (cmd *CmdUserList) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
+	db, err := connect()
+	if err != nil {
+		return err
+	}
+
+	defer db.Close()
 	return nil
 }
