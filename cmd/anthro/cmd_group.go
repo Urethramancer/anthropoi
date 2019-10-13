@@ -8,7 +8,6 @@ import (
 
 // CmdGroup subcommands.
 type CmdGroup struct {
-	opt.DefaultHelp
 	Add    CmdGroupAdd    `command:"add" help:"Add a new group."`
 	Edit   CmdGroupEdit   `command:"edit" help:"Edit an existing group." aliases:"change"`
 	List   CmdGroupList   `command:"list" help:"List groups." aliases:"ls"`
