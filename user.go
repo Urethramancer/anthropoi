@@ -1,6 +1,7 @@
 package anthropoi
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -129,6 +130,39 @@ func (db *DBM) DeleteUser(id int64) error {
 func (db *DBM) DeleteUserByName(name string) error {
 	_, err := db.Exec("DELETE FROM public.users WHERE username=$1;", name)
 	return err
+}
+
+// GetUsers retrieves all users, up to a limit, sorted by ID.
+func (db *DBM) GetUsers(limit int64) ([]*User, error) {
+	q := "SELECT id,username,email,created,locked,first,last FROM public.users"
+	if limit > 0 {
+		q += " LIMIT $1"
+	}
+
+	var rows *sql.Rows
+	var err error
+	if limit > 0 {
+		rows, err = db.Query(q, limit)
+	} else {
+		rows, err = db.Query(q)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	var list []*User
+	for rows.Next() {
+		var u User
+		err = rows.Scan(&u.ID, &u.Usermame, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
+		if err != nil {
+			return nil, err
+		}
+
+		list = append(list, &u)
+	}
+	return list, nil
 }
 
 // SetPassword generates a new salt and sets the password.
