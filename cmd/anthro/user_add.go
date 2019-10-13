@@ -15,7 +15,7 @@ type CmdUserAdd struct {
 	Email string `short:"e" long:"email" help:"Optional e-mail"`
 	First string `short:"f" long:"firstname" help:"Optional first name (the one displayed first - may be family name for some regions)."`
 	Last  string `short:"l" long:"lastname" help:"Optional last name."`
-	Cost  int    `short:"c" long:"cost" help:"Cost of hashing algorithm. Tweak this to make it at least 500ms to hash on the server." default:"12"`
+	Cost  int    `short:"c" long:"cost" help:"Cost of hashing algorithm. Tweak this to around 100ms per hash." default:"11"`
 }
 
 // Run add

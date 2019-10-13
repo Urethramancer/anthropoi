@@ -14,7 +14,7 @@ type CmdUserReset struct {
 	opt.DefaultHelp
 	User string `placeholder:"USERNAME" help:"Name of user to add." opt:"required"`
 	Len  int    `short:"l" long:"length" help:"Length of password." default:"14"`
-	Cost int    `short:"c" long:"cost" help:"Cost of hashing algorithm. Tweak this to make it at least 500ms to hash on the server." default:"12"`
+	Cost int    `short:"c" long:"cost" help:"Cost of hashing algorithm. Tweak this to around 100ms per hash." default:"11"`
 }
 
 // Run reset

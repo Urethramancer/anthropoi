@@ -56,6 +56,11 @@ func (db *DBM) AddUser(username, password, email, first, last, data, tokens stri
 		Data:     data,
 		Tokens:   tokens,
 	}
+
+	if cost < 10 {
+		cost = 10
+	}
+
 	err := u.SetPassword(password, cost)
 	if err != nil {
 		return nil, err
@@ -167,6 +172,10 @@ func (db *DBM) GetUsers(limit int64) ([]*User, error) {
 
 // SetPassword generates a new salt and sets the password.
 func (u *User) SetPassword(password string, cost int) error {
+	if cost < 10 {
+		cost = 10
+	}
+
 	u.Salt = GenString(32)
 	s := password + u.Salt
 	hash, err := bcrypt.GenerateFromPassword([]byte(s), cost)
