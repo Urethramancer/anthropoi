@@ -145,3 +145,18 @@ func (db *DBM) DatabaseExists(name string) bool {
 
 	return exists
 }
+
+// Drop a named database.
+func (db *DBM) Drop(name string) error {
+	var err error
+	q := `SELECT pid, pg_terminate_backend(pid) 
+	FROM pg_stat_activity 
+	WHERE datname = '` + name + `' AND pid <> pg_backend_pid();`
+	_, err = db.Exec(q)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec("DROP DATABASE IF EXISTS " + name + ";")
+	return err
+}
