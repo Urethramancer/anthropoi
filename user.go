@@ -33,8 +33,8 @@ type User struct {
 	 * Optional bits
 	 */
 
-	// Profiles for specific sites.
-	Profiles []*Profile
+	// Sites the user is a member of.
+	Sites []string
 
 	// First name of user (optional).
 	First string
