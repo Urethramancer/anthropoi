@@ -20,10 +20,9 @@ var Options struct {
 	Name     string `short:"n" long:"name" help:"Name of the database to create." default:"accounts"`
 	SSL      bool   `short:"s" long:"ssl" help:"Require SSL to connect."`
 
-	Init    CmdInit    `command:"init" help:"Initialise database and tables."`
-	User    CmdUser    `command:"user" help:"User management." aliases:"u"`
-	Profile CmdProfile `command:"profile" help:"Profile/site management." aliases:"pro"`
-	Group   CmdGroup   `command:"group" help:"Group management." aliases:"g"`
+	Init  CmdInit  `command:"init" help:"Initialise database and tables."`
+	User  CmdUser  `command:"user" help:"User management." aliases:"u"`
+	Group CmdGroup `command:"group" help:"Group management." aliases:"g"`
 }
 
 var m func(string, ...interface{})
@@ -80,7 +79,7 @@ func getenv(key, alt string) string {
 	return s
 }
 
-func connect() (*anthropoi.DBM, error) {
+func connect(dbname string) (*anthropoi.DBM, error) {
 	db := anthropoi.New(host, port, username, password, ssl)
-	return db, db.Connect(name)
+	return db, db.Connect(dbname)
 }

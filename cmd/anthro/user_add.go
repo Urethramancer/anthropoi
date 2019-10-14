@@ -24,7 +24,7 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
-	db, err := connect()
+	db, err := connect(name)
 	if err != nil {
 		return err
 	}

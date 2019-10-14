@@ -9,7 +9,7 @@ import (
 // Cmdinit options.
 type CmdInit struct {
 	opt.DefaultHelp
-	Drop bool `short:"D" long:"drop" help:"Drop existing database or tables."`
+	Drop bool `short:"D" long:"drop" help:"Drop existing database or tables. Requires superuser access."`
 }
 
 // Run init
@@ -18,7 +18,8 @@ func (cmd *CmdInit) Run(in []string) error {
 		return errors.New(opt.ErrorUsage)
 	}
 
-	db, err := connect()
+	println(name)
+	db, err := connect("")
 	if err != nil {
 		e("Error opening database: %s", err.Error())
 		return err
