@@ -123,11 +123,6 @@ func (db *DBM) InitDatabase() error {
 		return err
 	}
 
-	_, err = db.Exec(profileTable)
-	if err != nil {
-		return err
-	}
-
 	_, err = db.Exec(groupTables)
 	return err
 }
