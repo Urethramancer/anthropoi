@@ -20,23 +20,23 @@ CREATE TRIGGER trigger_sites_timestamp
 -- User to site connections
 CREATE TABLE IF NOT EXISTS public.membership
 (
--- user this membership is for.
-userid integer NOT NULL,
--- site the user is a member of
-siteid integer NOT NULL,
--- how long a user has been a member
-created timestamp with time zone,
--- primary key
-CONSTRAINT member_combined_pkey PRIMARY KEY(userid,siteid),
--- membership:users relationship
-CONSTRAINT member_users_fkey FOREIGN KEY (userid)
-REFERENCES public.users (id) MATCH SIMPLE
-	ON UPDATE CASCADE
-	ON DELETE CASCADE,
-CONSTRAINT member_sites_fkey FOREIGN KEY (siteid)
-REFERENCES public.sites (id) MATCH SIMPLE
-	ON UPDATE CASCADE
-	ON DELETE CASCADE
+	-- user this membership is for.
+	userid integer NOT NULL,
+	-- site the user is a member of
+	siteid integer NOT NULL,
+	-- how long a user has been a member
+	created timestamp with time zone,
+	-- primary key
+	CONSTRAINT member_combined_pkey PRIMARY KEY(userid,siteid),
+	-- membership:users relationship
+	CONSTRAINT member_users_fkey FOREIGN KEY (userid)
+	REFERENCES public.users (id) MATCH SIMPLE
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	CONSTRAINT member_sites_fkey FOREIGN KEY (siteid)
+	REFERENCES public.sites (id) MATCH SIMPLE
+		ON UPDATE CASCADE
+		ON DELETE CASCADE
 ) WITH (OIDS = FALSE) TABLESPACE pg_default;
 	
 -- Set the current timestamp whenever a row is inserted.
