@@ -110,10 +110,10 @@ func (db *DBM) GetUser(id int64) (*User, error) {
 		return nil, err
 	}
 
-	return &u, nil
+	return &u, db.GetSitesForUser(&u)
 }
 
-// GetUserByName for when you don't have an id.
+// GetUserByName for when you don't have an ID.
 func (db *DBM) GetUserByName(name string) (*User, error) {
 	var u User
 	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE username=$1 LIMIT 1", name).Scan(
@@ -122,7 +122,30 @@ func (db *DBM) GetUserByName(name string) (*User, error) {
 		return nil, err
 	}
 
-	return &u, nil
+	return &u, db.GetSitesForUser(&u)
+}
+
+// GetSitesForUser fills the Sites field in the User struct.
+func (db *DBM) GetSitesForUser(u *User) error {
+	q := `SELECT name FROM public.users u
+	INNER JOIN membership m ON u.id=m.userid
+	INNER JOIN sites s ON m.siteid=s.id WHERE u.id=$1;`
+	rows, err := db.Query(q, u.ID)
+	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+	u.Sites = []string{}
+	for rows.Next() {
+		var name string
+		err = rows.Scan(&name)
+		if err != nil {
+			return err
+		}
+		u.Sites = append(u.Sites, name)
+	}
+	return nil
 }
 
 // DeleteUser by ID.
@@ -161,6 +184,11 @@ func (db *DBM) GetUsers(limit int64) ([]*User, error) {
 	for rows.Next() {
 		var u User
 		err = rows.Scan(&u.ID, &u.Usermame, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
+		if err != nil {
+			return nil, err
+		}
+
+		err = db.GetSitesForUser(&u)
 		if err != nil {
 			return nil, err
 		}
