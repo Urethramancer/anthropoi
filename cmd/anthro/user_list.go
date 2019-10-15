@@ -33,7 +33,7 @@ func (cmd *CmdUserList) Run(in []string) error {
 	}
 
 	var out stringer.Stringer
-	out.WriteStrings("ID\tUsername\tName\tE-mail\tCreated\tActive\n")
+	out.WriteStrings("ID\tUsername\tName\tE-mail\tDomains\tCreated\tActive\n")
 	for _, u := range list {
 		if u.First == "" && u.Last == "" {
 			u.First = "<unset>"
@@ -46,6 +46,7 @@ func (cmd *CmdUserList) Run(in []string) error {
 			u.Usermame, "\t",
 			u.First, " ", u.Last, "\t",
 			u.Email, "\t",
+			len(u.Sites), "\t",
 			u.Created.String(), "\t",
 			!u.Locked, "\t",
 			"\n",
