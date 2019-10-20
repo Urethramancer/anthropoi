@@ -218,6 +218,12 @@ func (u *User) SetPassword(password string, cost int) error {
 	return nil
 }
 
+// SetDovecotPassword sets a Dovecot-compatible password for the user.
+func (u *User) SetDovecotPassword(password string, rounds int) {
+	u.Salt = GenString(16)
+	u.Password = GenerateDovecotPassword(password, u.Salt, rounds)
+}
+
 // GenerateDovecotPassword creates a Dovecot-compatible password with the SHA512-CRYPT algorithm prefix.
 func GenerateDovecotPassword(password, salt string, rounds int) string {
 	if rounds == 0 {
@@ -322,12 +328,6 @@ func GenerateDovecotPassword(password, salt string, rounds int) string {
 		sum[41], sum[20], sum[62],
 		sum[63]}
 	return fmt.Sprintf("{SHA512-CRYPT}$6$rounds=%d$%s$%s", rounds, salt, Base6424(string(in)))
-}
-
-// SetDovecotPassword sets a Dovecot IMAP-compatible password for the user.
-func (u *User) SetDovecotPassword(password string, rounds int) {
-	u.Salt = GenString(16)
-	u.Password = GenerateDovecotPassword(password, u.Salt, rounds)
 }
 
 // CheckPassword against the account's hash.
