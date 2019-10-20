@@ -30,3 +30,8 @@ CREATE TRIGGER trigger_users_timestamp
 	FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMIT WORK;
 `
+
+const (
+	pre_bcrypt      = "$2a$"
+	pre_sha512crypt = "{SHA512-CRYPT}"
+)
