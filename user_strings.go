@@ -6,9 +6,9 @@ CREATE TABLE IF NOT EXISTS public.users
 	-- id auto-increments
 	id serial NOT NULL,
 	-- username for logins across any site in the system.
-	username character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
+	username character varying(200) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	-- password is the hash from bcrypt. 60 is supposed to be a good length for the next millennium.
-	password character varying(60) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
+	password character varying(120) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	-- salt is protection against rainbow tables.
 	salt character varying(32) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	-- Email is required for verification and resetting.
