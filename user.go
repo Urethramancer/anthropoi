@@ -2,8 +2,10 @@ package anthropoi
 
 import (
 	"crypto/sha512"
+	"crypto/subtle"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -346,5 +348,25 @@ func (u *User) CheckPassword(password string) bool {
 }
 
 func (u *User) CompareDovecotHashAndPassword(password string) bool {
-	return false
+	a := strings.Split(u.Password, "$")
+	if len(a) != 5 {
+		return false
+	}
+
+	ra := strings.Split(a[2], "=")
+	if len(ra) != 2 {
+		return false
+	}
+
+	rounds, err := strconv.Atoi(ra[1])
+	if err != nil {
+		return false
+	}
+	pw := GenerateDovecotPassword(password, u.Salt, rounds)
+	a2 := strings.Split(pw, "$")
+	if len(a2) != 5 {
+		return false
+	}
+
+	return subtle.ConstantTimeCompare([]byte(a[4]), []byte(a2[4])) == 1
 }

@@ -37,3 +37,18 @@ func TestSetDovecotPassword(t *testing.T) {
 			i*multi, stop.Sub(start), ansi.Green, hash, ansi.Normal, ansi.Green, pw, ansi.Normal)
 	}
 }
+
+func TestCompareDovecotPassword(t *testing.T) {
+	salt := "0123456789abcdef"
+	password := "{SHA512-CRYPT}$6$rounds=10000$0123456789abcdef$yWg2ncsjJEyAkbcwd.XkLNHpdZ30gK4QX9YWC1mds1pL7noAF.6Xly7VM1X8BLCCmZjt2IFGz8f8EiU44bjNf/"
+	u := anthropoi.User{
+		Salt:     salt,
+		Password: password,
+	}
+	if !u.CompareDovecotHashAndPassword(pw) {
+		t.Logf("Error comparing passwords!")
+		t.FailNow()
+	} else {
+		t.Logf("Password matches salt and pre-generated hash.")
+	}
+}
