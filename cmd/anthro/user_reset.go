@@ -3,10 +3,12 @@ package main
 import (
 	"errors"
 	"strconv"
+	"syscall"
 
 	"github.com/Urethramancer/ansi"
 	"github.com/Urethramancer/anthropoi"
 	"github.com/Urethramancer/signor/opt"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // CmdUserReset options.
@@ -14,9 +16,11 @@ type CmdUserReset struct {
 	opt.DefaultHelp
 	User    string `placeholder:"USERNAME" help:"Name of user to add." opt:"required"`
 	Len     int    `short:"l" long:"length" help:"Length of password." default:"14"`
+	Length  int    `short:"L" long:"length" help:"Length of password. Minimum allowed is 12 characters." default:"14"`
 	Cost    int    `short:"c" long:"cost" help:"Cost of bcrypt hashing algorithm. Tweak this to around 100ms per hash." default:"11"`
-	Dovecot bool   `short:"d" long:"dovecot" help:"Generate a Dovecot-compatible password using SHA512-CRYPT, rather than the default bcrypt hash."`
 	Rounds  int    `short:"r" long:"rounds" help:"Number of rounds to hash SHA512-CRYPT." default:"50000"`
+	Dovecot bool   `short:"d" long:"dovecot" help:"Generate a Dovecot-compatible password using SHA512-CRYPT, rather than the default bcrypt hash."`
+	Ask     bool   `short:"a" long:"ask" help:"Ask for a password to set instead of generating one. This is the most secure option."`
 }
 
 // Run reset
@@ -26,6 +30,10 @@ func (cmd *CmdUserReset) Run(in []string) error {
 	}
 
 	// Enforce some sane minimums
+	if cmd.Length < 12 {
+		cmd.Length = 12
+	}
+
 	if cmd.Cost < 10 {
 		cmd.Cost = 10
 	}
@@ -51,7 +59,21 @@ func (cmd *CmdUserReset) Run(in []string) error {
 		return err
 	}
 
-	pw := anthropoi.GenString(cmd.Len)
+	var pw string
+	if cmd.Ask {
+		pass, err := terminal.ReadPassword(int(syscall.Stdin))
+		if err != nil {
+			return err
+		}
+
+		if len(pass) == 0 {
+			return errors.New("no password entered")
+		}
+
+		pw = string(pass)
+	} else {
+		pw = anthropoi.GenString(cmd.Length)
+	}
 	if cmd.Dovecot {
 		u.SetDovecotPassword(pw, cmd.Rounds)
 	} else {
