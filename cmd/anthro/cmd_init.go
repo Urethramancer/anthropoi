@@ -9,6 +9,7 @@ import (
 // Cmdinit options.
 type CmdInit struct {
 	opt.DefaultHelp
+	Mail bool `short:"m" long:"mail" help:"Set up the database for mail server use. This sets some flags and adds an aliases table."`
 	Drop bool `short:"D" long:"drop" help:"Drop existing database or tables. Requires superuser access."`
 }
 
@@ -68,5 +69,16 @@ func (cmd *CmdInit) Run(in []string) error {
 		return err
 	}
 
+	if cmd.Mail {
+		err = db.InitMailTables()
+		if err != nil {
+			return err
+		}
+
+		err = db.SetFlag("mailmode", true)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }

@@ -118,12 +118,28 @@ func (db *DBM) InitDatabase() error {
 		return err
 	}
 
+	_, err = db.Exec(varTables)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(flagTables)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.Exec(userTable)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Exec(groupTables)
+	return err
+}
+
+// InitMailTables for mail mode.
+func (db *DBM) InitMailTables() error {
+	_, err := db.Exec(aliasesTable)
 	return err
 }
 

@@ -14,6 +14,24 @@ const databaseTriggers = `BEGIN WORK;
 	COMMIT WORK;
 `
 
+const varTables = `CREATE TABLE public.variables
+(
+	key character varying(100) COLLATE pg_catalog."default" NOT NULL,
+	value text COLLATE pg_catalog."default" NOT NULL DEFAULT '',
+	CONSTRAINT var_prim PRIMARY KEY (key),
+	CONSTRAINT var_key_is_unique UNIQUE (key)
+) WITH (OIDS = FALSE) TABLESPACE pg_default;
+`
+
+const flagTables = `CREATE TABLE public.flags
+(
+	key character varying(100) COLLATE pg_catalog."default" NOT NULL,
+	flag boolean NOT NULL DEFAULT false,
+	CONSTRAINT flags_prim PRIMARY KEY (key),
+	CONSTRAINT flags_key_is_unique UNIQUE (key)
+) WITH (OIDS = FALSE) TABLESPACE pg_default;
+`
+
 const groupTables = `BEGIN WORK;
 CREATE TABLE IF NOT EXISTS public.sites
 (
@@ -143,4 +161,13 @@ CREATE TRIGGER trigger_users_timestamp
 	BEFORE INSERT ON public.users
 	FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 COMMIT WORK;
+`
+
+const aliasesTable = `CREATE TABLE public.aliases
+(
+	alias character varying(200) COLLATE pg_catalog."default" NOT NULL,
+	target character varying(200) COLLATE pg_catalog."default" NOT NULL,
+	CONSTRAINT alias_prim PRIMARY KEY (alias, target),
+	CONSTRAINT alias_is_unique UNIQUE (alias)
+)
 `
