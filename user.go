@@ -50,6 +50,11 @@ type User struct {
 	Tokens string
 }
 
+const (
+	pre_bcrypt      = "$2a$"
+	pre_sha512crypt = "{SHA512-CRYPT}"
+)
+
 // AddUser creates a new User. This may fail.
 func (db *DBM) AddUser(username, password, email, first, last, data, tokens string, cost int) (*User, error) {
 	u := &User{
