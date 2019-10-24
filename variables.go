@@ -20,8 +20,8 @@ func (db *DBM) GetVar(key string) (string, error) {
 	return s, nil
 }
 
-// ClearVar removes an entry in the variables table.
-func (db *DBM) ClearVar(key string) error {
+// RemoveVar deletes an entry in the variables table.
+func (db *DBM) RemoveVar(key string) error {
 	_, err := db.Exec("DELETE FROM public.variables WHERE key=$1;", key)
 	return err
 }
