@@ -22,6 +22,7 @@ var Options struct {
 
 	Init  CmdInit  `command:"init" help:"Initialise database and tables."`
 	User  CmdUser  `command:"user" help:"User management." aliases:"u"`
+	Alias CmdAlias `command:"alias" help:"Alias management." aliases:"al"`
 	Group CmdGroup `command:"group" help:"Group management." aliases:"g"`
 }
 
