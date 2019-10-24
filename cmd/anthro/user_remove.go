@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 
+	"github.com/Urethramancer/anthropoi"
 	"github.com/Urethramancer/signor/opt"
 )
 
@@ -25,15 +26,33 @@ func (cmd *CmdUserRemove) Run(in []string) error {
 	}
 
 	defer db.Close()
+	var u *anthropoi.User
 	id, err := strconv.ParseInt(cmd.User, 10, 64)
 	if err != nil {
+		u, err = db.GetUserByName(cmd.User)
+		if err != nil {
+			return err
+		}
+
 		err = db.DeleteUserByName(cmd.User)
 	} else {
+		u, err = db.GetUser(id)
+		if err != nil {
+			return err
+		}
+
 		err = db.DeleteUser(id)
 	}
 
 	if err != nil {
 		return err
+	}
+
+	if db.GetFlag("mailmode") {
+		err = db.RemoveAliases(u.Usermame)
+		if err != nil {
+			return err
+		}
 	}
 
 	m("Removed user %s", cmd.User)
