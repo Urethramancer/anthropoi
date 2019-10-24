@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"syscall"
 
@@ -61,6 +62,7 @@ func (cmd *CmdUserReset) Run(in []string) error {
 
 	var pw string
 	if cmd.Ask {
+		fmt.Printf("Password: ")
 		pass, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return err

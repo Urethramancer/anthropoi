@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"syscall"
 
 	"github.com/Urethramancer/ansi"
@@ -42,6 +43,7 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 
 	var pw string
 	if cmd.Ask {
+		fmt.Printf("Password: ")
 		pass, err := terminal.ReadPassword(int(syscall.Stdin))
 		if err != nil {
 			return err
@@ -67,6 +69,13 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 
 		u.SetDovecotPassword(pw, cmd.Rounds)
 		err = db.SaveUser(u)
+		if err != nil {
+			return err
+		}
+	}
+
+	if db.GetFlag("mailmode") {
+		err = db.SetAlias(cmd.Name, cmd.Name)
 		if err != nil {
 			return err
 		}
