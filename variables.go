@@ -10,14 +10,13 @@ func (db *DBM) SetVar(key, value string) error {
 }
 
 // GetVar gets a string from the variables table.
-func (db *DBM) GetVar(key string) (string, error) {
+func (db *DBM) GetVar(key string) string {
 	var s string
-	err := db.QueryRow("SELECT value FROM public.variables WHERE key=$1;", key).Scan(&s)
-	if err != nil {
-		return "", err
+	if db.QueryRow("SELECT value FROM public.variables WHERE key=$1;", key).Scan(&s) != nil {
+		return ""
 	}
 
-	return s, nil
+	return s
 }
 
 // RemoveVar deletes an entry in the variables table.
