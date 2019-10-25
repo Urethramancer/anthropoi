@@ -81,6 +81,8 @@ func (cmd *CmdUserAdd) Run(in []string) error {
 		}
 	}
 
-	m("Added user %d with password %s%s%s", u.ID, ansi.Green, pw, ansi.Normal)
+	if !cmd.Ask {
+		m("Added user %d with password %s%s%s", u.ID, ansi.Green, pw, ansi.Normal)
+	}
 	return nil
 }
