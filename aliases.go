@@ -31,7 +31,7 @@ func (db *DBM) GetAlias(alias string) (string, error) {
 	return t, nil
 }
 
-// SearchAliases looks through aliases and their targets containing the match string.
+// SearchAliases finds aliases or targets containing the match string. Leave blank to list everything.
 func (db *DBM) SearchAliases(match string) (*Aliases, error) {
 	rows, err := db.Query("SELECT alias,target FROM public.aliases WHERE alias||target LIKE '%'||$1||'%' ORDER BY target;", match)
 	if err != nil {
