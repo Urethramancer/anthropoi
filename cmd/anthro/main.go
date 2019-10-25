@@ -21,6 +21,7 @@ var Options struct {
 	SSL      bool   `short:"s" long:"ssl" help:"Require SSL to connect."`
 
 	Init  CmdInit  `command:"init" help:"Initialise database and tables."`
+	Site  CmdSite  `command:"site" help:"Site management." aliases:"s"`
 	User  CmdUser  `command:"user" help:"User management." aliases:"u"`
 	Alias CmdAlias `command:"alias" help:"Alias management." aliases:"al"`
 	Group CmdGroup `command:"group" help:"Group management." aliases:"g"`

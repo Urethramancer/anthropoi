@@ -8,15 +8,15 @@ import (
 	"github.com/Urethramancer/signor/stringer"
 )
 
-// CmdAliasSearch options.
-type CmdAliasSearch struct {
+// CmdAliasList options.
+type CmdAliasList struct {
 	opt.DefaultHelp
 	Match string `placeholder:"KEYWORD" help:"Find aliases and targets containing keyword."`
 	JSON  bool   `short:"j" long:"json" help:"Output in JSON format, suitable for import with the alias set subcommand."`
 }
 
 // Run get
-func (cmd *CmdAliasSearch) Run(in []string) error {
+func (cmd *CmdAliasList) Run(in []string) error {
 	if cmd.Help {
 		return errors.New(opt.ErrorUsage)
 	}
