@@ -10,7 +10,7 @@ import (
 type CmdAlias struct {
 	List   CmdAliasList   `command:"list" help:"List aliases." aliases:"ls"`
 	Set    CmdAliasSet    `command:"add" help:"Set a new or existing alias."`
-	Get    CmdAliasGet    `command:"add" help:"Get the target for an alias."`
+	Search CmdAliasSearch `command:"search" help:"Search for an alias or target."`
 	Remove CmdAliasRemove `command:"remove" help:"Remove an alias." aliases:"rm"`
 }
 
