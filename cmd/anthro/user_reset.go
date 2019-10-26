@@ -68,6 +68,7 @@ func (cmd *CmdUserReset) Run(in []string) error {
 			return err
 		}
 
+		println()
 		if len(pass) == 0 {
 			return errors.New("no password entered")
 		}
