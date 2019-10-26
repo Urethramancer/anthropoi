@@ -83,11 +83,7 @@ func (db *DBM) AddUser(username, password, email, first, last, data, tokens stri
 
 	defer st.Close()
 	err = st.QueryRow(u.Usermame, u.Password, u.Salt, u.Email, u.First, u.Last, u.Data, u.Tokens).Scan(&u.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return u, nil
+	return u, err
 }
 
 // UpdateUser saves an existing user by ID.
@@ -157,21 +153,21 @@ func (db *DBM) GetSitesForUser(u *User) error {
 	return nil
 }
 
-// DeleteUser by ID.
-func (db *DBM) DeleteUser(id int64) error {
+// RemoveUser by ID.
+func (db *DBM) RemoveUser(id int64) error {
 	_, err := db.Exec("DELETE FROM public.users WHERE id=$1;", id)
 	return err
 }
 
-// DeleteUserByName for when that's needed.
-func (db *DBM) DeleteUserByName(name string) error {
+// RemoveUserByName for when that's needed.
+func (db *DBM) RemoveUserByName(name string) error {
 	_, err := db.Exec("DELETE FROM public.users WHERE username=$1;", name)
 	return err
 }
 
 // GetUsers retrieves all users, up to a limit, sorted by ID.
 func (db *DBM) GetUsers(limit int64) ([]*User, error) {
-	q := "SELECT id,username,email,created,locked,first,last FROM public.users"
+	q := "SELECT id,username,email,created,locked,first,last FROM public.users ORDER BY id"
 	if limit > 0 {
 		q += " LIMIT $1"
 	}

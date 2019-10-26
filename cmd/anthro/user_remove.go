@@ -34,14 +34,14 @@ func (cmd *CmdUserRemove) Run(in []string) error {
 			return err
 		}
 
-		err = db.DeleteUserByName(cmd.User)
+		err = db.RemoveUserByName(cmd.User)
 	} else {
 		u, err = db.GetUser(id)
 		if err != nil {
 			return err
 		}
 
-		err = db.DeleteUser(id)
+		err = db.RemoveUser(id)
 	}
 
 	if err != nil {
