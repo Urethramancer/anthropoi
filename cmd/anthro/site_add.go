@@ -9,11 +9,12 @@ import (
 // CmdSiteAdd options.
 type CmdSiteAdd struct {
 	opt.DefaultHelp
+	Site string `placeholder:"SITE" help:"Site or domain name to add."`
 }
 
 // Run add
 func (cmd *CmdSiteAdd) Run(in []string) error {
-	if cmd.Help {
+	if cmd.Help || cmd.Site == "" {
 		return errors.New(opt.ErrorUsage)
 	}
 
@@ -23,5 +24,11 @@ func (cmd *CmdSiteAdd) Run(in []string) error {
 	}
 
 	defer db.Close()
+	id, err := db.AddSite(cmd.Site)
+	if err != nil {
+		return err
+	}
+
+	m("%s added with ID %d.", cmd.Site, id)
 	return nil
 }

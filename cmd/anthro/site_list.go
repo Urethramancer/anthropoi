@@ -6,9 +6,8 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/Urethramancer/signor/stringer"
-
 	"github.com/Urethramancer/signor/opt"
+	"github.com/Urethramancer/signor/stringer"
 )
 
 // CmdSiteList options.
@@ -36,9 +35,9 @@ func (cmd *CmdSiteList) Run(in []string) error {
 	}
 
 	buf := stringer.New()
-	buf.WriteStrings("ID\tDomain\n")
+	buf.WriteStrings("ID\tDomain\tCreated\n")
 	for _, site := range sites.List {
-		buf.WriteI(site.ID, "\t", site.Name, "\n")
+		buf.WriteI(site.ID, "\t", site.Name, "\t", site.Created.String(), "\n")
 	}
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
 	fmt.Fprint(w, buf.String())
