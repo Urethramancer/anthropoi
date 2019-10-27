@@ -8,8 +8,9 @@ import (
 
 // CmdAlias subcommands.
 type CmdAlias struct {
-	Set    CmdAliasSet    `command:"add" help:"Set a new or existing alias."`
-	List   CmdAliasList   `command:"list" help:"List or search for aliases and targets." aliases:"ls"`
+	Set    CmdAliasSet    `command:"add" help:"Set a new or existing alias." aliases:"a"`
+	Import CmdAliasImport `command:"import" help:"Import aliases from a JSON file." aliases:"imp,i"`
+	List   CmdAliasList   `command:"list" help:"List or search for aliases and targets." aliases:"ls,l"`
 	Remove CmdAliasRemove `command:"remove" help:"Remove an alias." aliases:"rm"`
 }
 

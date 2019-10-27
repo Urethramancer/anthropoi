@@ -32,14 +32,15 @@ func (cmd *CmdAliasList) Run(in []string) error {
 		return err
 	}
 
-	buf := stringer.New()
 	if cmd.JSON {
 		j, err := json.MarshalIndent(list, "", "\t")
 		if err != nil {
 			return err
 		}
-		buf.WriteString(string(j))
+
+		m("%s", string(j))
 	} else {
+		buf := stringer.New()
 		l := len(list.List)
 		for i, a := range list.List {
 			buf.WriteStrings("\t", a.Alias, " -> ", a.Target)
@@ -47,8 +48,8 @@ func (cmd *CmdAliasList) Run(in []string) error {
 				buf.WriteString("\n")
 			}
 		}
+		m("%s", buf.String())
 	}
 
-	m("%s", buf.String())
 	return nil
 }
