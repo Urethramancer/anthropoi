@@ -9,8 +9,8 @@ import (
 // CmdSite subcommands.
 type CmdSite struct {
 	opt.DefaultHelp
+	List   CmdSiteList   `command:"list" help:"List or search for sites." aliases:"ls,l"`
 	Add    CmdSiteAdd    `command:"add" help:"Add new site."`
-	List   CmdSiteList   `command:"list" help:"List or search for sites." aliases:"ls"`
 	Remove CmdSiteRemove `command:"remove" help:"Remove a site." aliases:"rm"`
 }
 

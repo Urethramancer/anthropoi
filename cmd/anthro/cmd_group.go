@@ -8,9 +8,9 @@ import (
 
 // CmdGroup subcommands.
 type CmdGroup struct {
+	List   CmdGroupList   `command:"list" help:"List groups." aliases:"ls,l"`
 	Add    CmdGroupAdd    `command:"add" help:"Add a new group."`
 	Edit   CmdGroupEdit   `command:"edit" help:"Edit an existing group." aliases:"change"`
-	List   CmdGroupList   `command:"list" help:"List groups." aliases:"ls"`
 	Move   CmdGroupMove   `command:"move" help:"Move a group between sites." aliases:"mv"`
 	Remove CmdGroupRemove `command:"remove" help:"Remove a group." aliases:"rm"`
 }

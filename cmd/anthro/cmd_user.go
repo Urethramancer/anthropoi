@@ -8,7 +8,7 @@ import (
 
 // CmdUser subcommands.
 type CmdUser struct {
-	List   CmdUserList   `command:"list" help:"List users." aliases:"ls"`
+	List   CmdUserList   `command:"list" help:"List users." aliases:"ls,l"`
 	Add    CmdUserAdd    `command:"add" help:"Add a new user. A password will be generated and displayed."`
 	Edit   CmdUserEdit   `command:"edit" help:"Edit an existing user." aliases:"ed,change"`
 	Reset  CmdUserReset  `command:"reset" help:"Reset password to a new random one."`
