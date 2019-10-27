@@ -13,6 +13,8 @@ import (
 // CmdUserList options.
 type CmdUserList struct {
 	opt.DefaultHelp
+	Match string `placeholder:"KEYWORD" help:"Find users containing keyword. Leave blank to list all."`
+	JSON  bool   `short:"j" long:"json" help:"Output in JSON format."`
 }
 
 // Run list
@@ -27,7 +29,7 @@ func (cmd *CmdUserList) Run(in []string) error {
 	}
 
 	defer db.Close()
-	list, err := db.GetUsers(0)
+	list, err := db.GetUsers(cmd.Match)
 	if err != nil {
 		return err
 	}

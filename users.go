@@ -165,21 +165,13 @@ func (db *DBM) RemoveUserByName(name string) error {
 	return err
 }
 
-// GetUsers retrieves all users, up to a limit, sorted by ID.
-func (db *DBM) GetUsers(limit int64) ([]*User, error) {
-	q := "SELECT id,username,email,created,locked,first,last FROM public.users ORDER BY id"
-	if limit > 0 {
-		q += " LIMIT $1"
-	}
+// GetUsers retrieves users, sorted by ID, optionally containing a keyword.
+func (db *DBM) GetUsers(match string) ([]*User, error) {
+	q := "SELECT id,username,email,created,locked,first,last FROM public.users WHERE username LIKE '%'||$1||'%' ORDER BY id;"
 
 	var rows *sql.Rows
 	var err error
-	if limit > 0 {
-		rows, err = db.Query(q, limit)
-	} else {
-		rows, err = db.Query(q)
-	}
-
+	rows, err = db.Query(q, match)
 	if err != nil {
 		return nil, err
 	}
