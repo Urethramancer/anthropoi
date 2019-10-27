@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -29,33 +30,42 @@ func (cmd *CmdUserList) Run(in []string) error {
 	}
 
 	defer db.Close()
-	list, err := db.GetUsers(cmd.Match)
+	users, err := db.GetUsers(cmd.Match)
 	if err != nil {
 		return err
 	}
 
-	var out stringer.Stringer
-	out.WriteStrings("ID\tUsername\tName\tE-mail\tDomains\tCreated\tActive\n")
-	for _, u := range list {
-		if u.First == "" && u.Last == "" {
-			u.First = "<unset>"
+	if cmd.JSON {
+		j, err := json.MarshalIndent(users, "", "\t")
+		if err != nil {
+			return err
 		}
-		if u.Email == "" {
-			u.Email = "<unset>"
+
+		m("%s", string(j))
+	} else {
+		var out stringer.Stringer
+		out.WriteStrings("ID\tUsername\tName\tE-mail\tDomains\tCreated\tActive\n")
+		for _, u := range users.List {
+			if u.First == "" && u.Last == "" {
+				u.First = "<unset>"
+			}
+			if u.Email == "" {
+				u.Email = "<unset>"
+			}
+			out.WriteI(
+				fmt.Sprintf("%d\t", u.ID),
+				u.Usermame, "\t",
+				u.First, " ", u.Last, "\t",
+				u.Email, "\t",
+				len(u.Sites), "\t",
+				u.Created.String(), "\t",
+				!u.Locked, "\t",
+				"\n",
+			)
 		}
-		out.WriteI(
-			fmt.Sprintf("%d\t", u.ID),
-			u.Usermame, "\t",
-			u.First, " ", u.Last, "\t",
-			u.Email, "\t",
-			len(u.Sites), "\t",
-			u.Created.String(), "\t",
-			!u.Locked, "\t",
-			"\n",
-		)
+		w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
+		fmt.Fprint(w, out.String())
+		w.Flush()
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 0, 4, ' ', 0)
-	fmt.Fprint(w, out.String())
-	w.Flush()
 	return nil
 }
