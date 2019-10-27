@@ -3,7 +3,6 @@ package anthropoi
 import (
 	"crypto/sha512"
 	"crypto/subtle"
-	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -19,35 +18,40 @@ type User struct {
 	 */
 
 	// ID of user in the database.
-	ID int64
+	ID int64 `json:"id"`
 	// Username to log in with.
-	Usermame string
+	Usermame string `json:"username"`
 	// Password for user account.
-	Password string
+	Password string `json:"password"`
 	// Salt for the password.
-	Salt string
+	Salt string `json:"salt"`
 	// Email to verify account or reset password.
-	Email string
+	Email string `json:"email"`
 	// Created timestamp.
-	Created time.Time
+	Created time.Time `json:"created"`
 	// Locked accounts can't log in.
-	Locked bool
+	Locked bool `json:"locked"`
 
 	/*
 	 * Optional bits
 	 */
 
+	// First name of user (optional).
+	First string `json:"first"`
+	// Last name of user (optional).
+	Last string `json:"last"`
+	// Data for the account. JSON field for all the customising you need.
+	Data string `json:"data"`
+	// Tokens is meant to store any authentication tokens required for external sites.
+	Tokens string `json:"token"`
+
 	// Sites the user is a member of.
 	Sites []string
+}
 
-	// First name of user (optional).
-	First string
-	// Last name of user (optional).
-	Last string
-	// Data for the account. JSON field for all the customising you need.
-	Data string
-	// Tokens is meant to store any authentication tokens required for external sites.
-	Tokens string
+// Users container.
+type Users struct {
+	List []*User `json:"users"`
 }
 
 const (
@@ -166,18 +170,14 @@ func (db *DBM) RemoveUserByName(name string) error {
 }
 
 // GetUsers retrieves users, sorted by ID, optionally containing a keyword.
-func (db *DBM) GetUsers(match string) ([]*User, error) {
-	q := "SELECT id,username,email,created,locked,first,last FROM public.users WHERE username LIKE '%'||$1||'%' ORDER BY id;"
-
-	var rows *sql.Rows
-	var err error
-	rows, err = db.Query(q, match)
+func (db *DBM) GetUsers(match string) (*Users, error) {
+	rows, err := db.Query("SELECT id,username,email,created,locked,first,last FROM public.users WHERE username LIKE '%'||$1||'%' ORDER BY id;", match)
 	if err != nil {
 		return nil, err
 	}
 
 	defer rows.Close()
-	var list []*User
+	var users Users
 	for rows.Next() {
 		var u User
 		err = rows.Scan(&u.ID, &u.Usermame, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
@@ -190,9 +190,10 @@ func (db *DBM) GetUsers(match string) ([]*User, error) {
 			return nil, err
 		}
 
-		list = append(list, &u)
+		users.List = append(users.List, &u)
 	}
-	return list, nil
+
+	return &users, nil
 }
 
 // SetPassword generates a new salt and sets the password.
