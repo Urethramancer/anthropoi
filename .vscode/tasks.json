@@ -6,12 +6,34 @@
 	],
 	"tasks": [
 		{
-			"label": "Build Release",
+			"label": "Build (Release)",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn": [
+				"client-release",
+				"server-release"
+			]
+		},
+		{
+			"label": "Build (Debug)",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"dependsOn": [
+				"client-debug",
+				"server-debug"
+			]
+		},
+		{
+			"label": "client-release",
 			"command": "go",
 			"args": [
 				"build",
 				"-ldflags",
-				"\"-w -s\"",
+				"\"-w -s\""
 			],
 			"options": {
 				"cwd": "${workspaceRoot}/cmd/anthro"
@@ -30,13 +52,56 @@
 			}
 		},
 		{
-			"label": "Build Debug",
+			"label": "server-release",
 			"command": "go",
 			"args": [
 				"build",
+				"-ldflags",
+				"\"-w -s\""
+			],
+			"options": {
+				"cwd": "${workspaceRoot}/cmd/acctsrv"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"echo": true,
+				"reveal": "silent",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": false
+			}
+		},
+		{
+			"label": "client-debug",
+			"command": "go",
+			"args": [
+				"build"
 			],
 			"options": {
 				"cwd": "${workspaceRoot}/cmd/anthro"
+			},
+			"group": "build",
+			"presentation": {
+				"echo": true,
+				"reveal": "silent",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "server-debug",
+			"command": "go",
+			"args": [
+				"build"
+			],
+			"options": {
+				"cwd": "${workspaceRoot}/cmd/acctsrv"
 			},
 			"group": "build",
 			"presentation": {
