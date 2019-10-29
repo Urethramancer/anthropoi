@@ -30,6 +30,7 @@ func main() {
 	as.Stop()
 }
 
+// NewAccountServer sets up routes and returns a server ready to start serving REST end points.
 func NewAccountServer(dbhost, database, username, password, host, port string) *AccountServer {
 	as := AccountServer{
 		dbhost:     dbhost,
@@ -51,14 +52,22 @@ func NewAccountServer(dbhost, database, username, password, host, port string) *
 	as.api.Use(middleware.NoCache)
 	as.api.Use(middleware.RealIP)
 	as.api.Use(middleware.RequestID)
-	as.api.Use(authenticate)
-	as.api.Use(middleware.Recoverer)
 	as.api.Use(middleware.Timeout(time.Second * 10))
 
-	// Return API version for now. TODO: Return any useful information for clients to know before accessing endpoints.
-	as.api.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("1"))
+	as.api.Route("/", func(r chi.Router) {
+		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("1"))
+		})
+
+		r.Route("/user", func(r chi.Router) {
+			r.Use(check_access)
+			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("/user"))
+			})
+		})
+
 	})
+
 	return &as
 }
 
@@ -77,6 +86,7 @@ type AccountServer struct {
 	api *chi.Mux
 }
 
+// Start the server.
 func (as *AccountServer) Start() {
 	as.Lock()
 	defer as.Unlock()
@@ -88,7 +98,7 @@ func (as *AccountServer) Start() {
 	}
 
 	as.Add(1)
-	as.L("Starting web server on %s", addr)
+	as.L("Starting web server on http://%s", addr)
 	go func() {
 		as.Handler = as.api
 		err = as.Serve(listener)
@@ -102,6 +112,7 @@ func (as *AccountServer) Start() {
 	}()
 }
 
+// Stop the server.
 func (as *AccountServer) Stop() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -114,11 +125,12 @@ func (as *AccountServer) Stop() {
 	as.Wait()
 }
 
-func authenticate(next http.Handler) http.Handler {
+func check_access(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		r = r.WithContext(context.WithValue(ctx, "Authentication", "moo"))
-		http.Error(w, "Unknown token", http.StatusForbidden)
+		w.Write([]byte("auth"))
+		// http.Error(w, "Unknown token", http.StatusForbidden)
 	}
 	return http.HandlerFunc(fn)
 }
