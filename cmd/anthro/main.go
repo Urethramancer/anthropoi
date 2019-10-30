@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/Urethramancer/anthropoi"
+	"github.com/Urethramancer/signor/env"
 	"github.com/Urethramancer/signor/log"
 	"github.com/Urethramancer/signor/opt"
 	_ "github.com/lib/pq"
@@ -54,15 +55,15 @@ func main() {
 		e = log.Default.Err
 	}
 
-	host = getenv("DB_HOST", Options.Host)
-	port = getenv("DB_PORT", "5432")
-	username = getenv("DB_USERNAME", "postgres")
-	password = getenv("DB_PASSWORD", "")
-	name = getenv("DB_NAME", anthropoi.DefaultName)
+	host = env.Get("DB_HOST", Options.Host)
+	port = env.Get("DB_PORT", "5432")
+	username = env.Get("DB_USERNAME", "postgres")
+	password = env.Get("DB_PASSWORD", "")
+	name = env.Get("DB_NAME", anthropoi.DefaultName)
 	if Options.SSL {
 		ssl = "enable"
 	} else {
-		ssl = getenv("DB_SSL", "disable")
+		ssl = env.Get("DB_SSL", "disable")
 	}
 
 	err := a.RunCommand(false)
@@ -70,15 +71,6 @@ func main() {
 		log.Default.Msg("Error running: %s", err.Error())
 		os.Exit(2)
 	}
-}
-
-func getenv(key, alt string) string {
-	s := os.Getenv(key)
-	if s == "" {
-		return alt
-	}
-
-	return s
 }
 
 func connect(dbname string) (*anthropoi.DBM, error) {

@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 
+	"github.com/Urethramancer/signor/env"
 	"github.com/Urethramancer/signor/opt"
 )
 
@@ -37,9 +38,9 @@ func (cmd *CmdInit) Run(in []string) error {
 	defer db.Close()
 	if !db.DatabaseExists(name) {
 		m("No database. Setting up '%s' on '%s:%s'",
-			getenv("DB_NAME", name),
-			getenv("DB_HOST", host),
-			getenv("DB_PORT", port),
+			env.Get("DB_NAME", name),
+			env.Get("DB_HOST", host),
+			env.Get("DB_PORT", port),
 		)
 
 		err = db.Connect("")
