@@ -74,9 +74,8 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 
 		r.Route("/user", func(r chi.Router) {
 			r.Use(check_access)
-			r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("/user"))
-			})
+			r.Get("/", as.user)
+			r.Post("/password", as.password)
 		})
 
 	})
