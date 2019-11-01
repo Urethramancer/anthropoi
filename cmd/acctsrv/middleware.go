@@ -17,8 +17,8 @@ type AuthMsg struct {
 type StatusReply struct {
 	// Message string.
 	Message string `json:"message"`
-	// OK is true if all went well. If this was embedded in another struct, there will be other data.
-	OK bool `json:"ok"`
+	// Code is 0 if all went well. If this was embedded in another struct, there might be other data.
+	Code int `json:"code"`
 }
 
 // Check security token.
