@@ -92,7 +92,7 @@ func (cmd *CmdUserReset) Run(in []string) error {
 	}
 
 	if !cmd.Ask {
-		m("Changed password for %s%s(%d)%s to %s%s%s", ansi.Blue, u.Usermame, u.ID, ansi.Normal, ansi.Green, pw, ansi.Normal)
+		m("Changed password for %s%s(%d)%s to %s%s%s", ansi.Blue, u.Username, u.ID, ansi.Normal, ansi.Green, pw, ansi.Normal)
 	}
 	return nil
 }

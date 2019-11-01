@@ -54,7 +54,7 @@ func (cmd *CmdUserList) Run(in []string) error {
 			}
 			out.WriteI(
 				fmt.Sprintf("%d\t", u.ID),
-				u.Usermame, "\t",
+				u.Username, "\t",
 				u.First, " ", u.Last, "\t",
 				u.Email, "\t",
 				len(u.Sites), "\t",

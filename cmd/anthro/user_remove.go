@@ -49,7 +49,7 @@ func (cmd *CmdUserRemove) Run(in []string) error {
 	}
 
 	if db.GetFlag("mailmode") {
-		err = db.RemoveAliases(u.Usermame)
+		err = db.RemoveAliases(u.Username)
 		if err != nil {
 			return err
 		}
