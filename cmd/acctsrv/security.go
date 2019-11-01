@@ -20,30 +20,48 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 		apierror(w, errUserPassword, 403)
 		return
 	}
-	println("2")
 
-	as.L("%s: %s", u.Usermame, u.Password)
-	as.L("%s", anthropoi.GenerateDovecotPassword(msg.Password, u.Salt, 50000))
 	if !u.CompareDovecotHashAndPassword(msg.Password) {
+		as.L("User %s failed to authenticate from %s", u.Username, r.RemoteAddr)
 		apierror(w, errUserPassword, 403)
 		return
 	}
 
-	h := sha256.New()
-	h.Write([]byte(anthropoi.GenString(16)))
-	h.Write([]byte(time.Now().String()))
-	reply.Message = hex.EncodeToString(h.Sum(nil))
-
+	as.L("User %s authenticated from %s", u.Username, r.RemoteAddr)
+	reply.Message = as.createToken(u)
 	data, err := json.Marshal(reply)
 	if err != nil {
 		apierror(w, err.Error(), 500)
 		return
 	}
 
+	w.Write([]byte(data))
+}
+
+// Create or get an active token.
+func (as *AccountServer) createToken(u *anthropoi.User) string {
+	hash, ok := as.hashes[u.Username]
+	if ok {
+		past := time.Now().Add(-time.Minute * 30)
+		if !as.tokens[hash].Timestamp.Before(past) {
+			as.tokens[hash].Timestamp = time.Now()
+			return hash
+		} else {
+			delete(as.hashes, u.Username)
+			delete(as.tokens, hash)
+		}
+	}
+
+	h := sha256.New()
+	h.Write([]byte(anthropoi.GenString(16)))
+	h.Write([]byte(time.Now().String()))
+	hash = hex.EncodeToString(h.Sum(nil))
+
 	t := Token{
 		User:      u,
 		Timestamp: time.Now(),
 	}
-	as.tokens[reply.Message] = &t
-	w.Write([]byte(data))
+	as.hashes[u.Username] = hash
+	as.tokens[hash] = &t
+	return hash
 }

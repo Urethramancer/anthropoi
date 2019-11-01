@@ -34,6 +34,7 @@ type AccountServer struct {
 	port string
 
 	api    *chi.Mux
+	hashes map[string]string
 	tokens map[string]*Token
 }
 
@@ -47,6 +48,8 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 		dbpass: dbpass,
 		host:   host,
 		port:   port,
+		tokens: make(map[string]*Token),
+		hashes: make(map[string]string),
 	}
 
 	as.L = log.Default.TMsg
@@ -64,6 +67,7 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 	as.api.Use(addJSONHeaders)
 
 	as.api.Route("/", func(r chi.Router) {
+		r.NotFound(notfound)
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("v1"))
 		})
@@ -113,6 +117,7 @@ func (as *AccountServer) Start() {
 			as.db.Close()
 			os.Exit(2)
 		}
+		as.L("%d entries in token map", len(as.tokens))
 		as.L("Stopped web server.")
 		as.Done()
 	}()

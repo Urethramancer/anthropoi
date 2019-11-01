@@ -14,6 +14,10 @@ type Token struct {
 	Timestamp time.Time
 }
 
+func notfound(w http.ResponseWriter, r *http.Request) {
+	apierror(w, "Unknown endpoint.", 404)
+}
+
 // Get details, update details.
 func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 
