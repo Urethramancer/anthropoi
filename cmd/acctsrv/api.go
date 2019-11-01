@@ -11,6 +11,8 @@ func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 }
 
 type password struct {
+	// Token for the user who's changing the password.
+	Token string `json:"token"`
 	// Password to set.
 	Password string `json:"password"`
 }
