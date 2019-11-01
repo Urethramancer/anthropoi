@@ -33,8 +33,8 @@ type AccountServer struct {
 	host string
 	port string
 
-	api   *chi.Mux
-	token map[string]*anthropoi.User
+	api    *chi.Mux
+	tokens map[string]*Token
 }
 
 // NewAccountServer sets up routes and returns a server ready to start serving REST end points.

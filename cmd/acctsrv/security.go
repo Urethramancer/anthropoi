@@ -40,6 +40,10 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	as.token[reply.Message] = u
+	t := Token{
+		User:      u,
+		Timestamp: time.Now(),
+	}
+	as.tokens[reply.Message] = &t
 	w.Write([]byte(data))
 }

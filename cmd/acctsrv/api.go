@@ -3,7 +3,16 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"time"
+
+	"github.com/Urethramancer/anthropoi"
 )
+
+// Token keeps track of when it was last used, and who it's for.
+type Token struct {
+	User      *anthropoi.User
+	Timestamp time.Time
+}
 
 // Get details, update details.
 func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
