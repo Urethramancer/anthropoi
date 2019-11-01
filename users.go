@@ -20,7 +20,7 @@ type User struct {
 	// ID of user in the database.
 	ID int64 `json:"id"`
 	// Username to log in with.
-	Usermame string `json:"username"`
+	Username string `json:"username"`
 	// Password for user account.
 	Password string `json:"password"`
 	// Salt for the password.
@@ -62,7 +62,7 @@ const (
 // AddUser creates a new User. This may fail.
 func (db *DBM) AddUser(username, password, email, first, last, data, tokens string, cost int) (*User, error) {
 	u := &User{
-		Usermame: username,
+		Username: username,
 		Email:    email,
 		First:    first,
 		Last:     last,
@@ -86,7 +86,7 @@ func (db *DBM) AddUser(username, password, email, first, last, data, tokens stri
 	}
 
 	defer st.Close()
-	err = st.QueryRow(u.Usermame, u.Password, u.Salt, u.Email, u.First, u.Last, u.Data, u.Tokens).Scan(&u.ID)
+	err = st.QueryRow(u.Username, u.Password, u.Salt, u.Email, u.First, u.Last, u.Data, u.Tokens).Scan(&u.ID)
 	return u, err
 }
 
@@ -101,7 +101,7 @@ func (db *DBM) SaveUser(u *User) error {
 	}
 
 	q := `UPDATE public.users SET username=$1,password=$2,salt=$3,email=$4,locked=$5,first=$6,last=$7,data=$8,tokens=$9 WHERE id=$10;`
-	_, err := db.Exec(q, u.Usermame, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.ID)
+	_, err := db.Exec(q, u.Username, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.ID)
 	if err != nil {
 		fmt.Printf("WTF? %s\n", err.Error())
 		return err
@@ -114,7 +114,7 @@ func (db *DBM) SaveUser(u *User) error {
 func (db *DBM) GetUser(id int64) (*User, error) {
 	var u User
 	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE id=$1 LIMIT 1", id).Scan(
-		&u.ID, &u.Usermame, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
+		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (db *DBM) GetUser(id int64) (*User, error) {
 func (db *DBM) GetUserByName(name string) (*User, error) {
 	var u User
 	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE username=$1 LIMIT 1", name).Scan(
-		&u.ID, &u.Usermame, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
+		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (db *DBM) GetUsers(match string) (*Users, error) {
 	var users Users
 	for rows.Next() {
 		var u User
-		err = rows.Scan(&u.ID, &u.Usermame, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
+		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
 		if err != nil {
 			return nil, err
 		}
@@ -326,7 +326,7 @@ func GenerateDovecotPassword(password, salt string, rounds int) string {
 
 // CheckPassword against the account's hash.
 func (u *User) CheckPassword(password string) bool {
-	if u.Usermame == "" || u.Password == "" {
+	if u.Username == "" || u.Password == "" {
 		return false
 	}
 
