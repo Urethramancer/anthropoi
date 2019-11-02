@@ -12,7 +12,6 @@ import (
 
 func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 	msg := r.Context().Value("req").(RequestMsg)
-	reply := StatusReply{}
 
 	u, err := as.db.GetUserByName(msg.Username)
 	if err != nil {
@@ -27,6 +26,7 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	as.L("User %s authenticated from %s", u.Username, r.RemoteAddr)
+	reply := StatusReply{}
 	reply.Message = as.createToken(u)
 	data, err := json.Marshal(reply)
 	if err != nil {
@@ -74,4 +74,10 @@ func (as *AccountServer) getToken(hash string) *Token {
 
 	t.Timestamp = time.Now()
 	return t
+}
+
+func (as *AccountServer) invalidateToken(hash string) {
+	t := as.tokens[hash]
+	delete(as.hashes, t.User.Username)
+	delete(as.tokens, hash)
 }
