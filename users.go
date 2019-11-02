@@ -29,8 +29,6 @@ type User struct {
 	Email string `json:"email"`
 	// Created timestamp.
 	Created time.Time `json:"created"`
-	// Locked accounts can't log in.
-	Locked bool `json:"locked"`
 
 	/*
 	 * Optional bits
@@ -47,6 +45,11 @@ type User struct {
 
 	// Sites the user is a member of.
 	Sites []string
+
+	// Locked accounts can't log in.
+	Locked bool `json:"locked"`
+	// Admin for the whole system if true.
+	Admin bool `json:"admin"`
 }
 
 // Users container.
@@ -100,8 +103,8 @@ func (db *DBM) SaveUser(u *User) error {
 		u.Tokens = "{}"
 	}
 
-	q := `UPDATE public.users SET username=$1,password=$2,salt=$3,email=$4,locked=$5,first=$6,last=$7,data=$8,tokens=$9 WHERE id=$10;`
-	_, err := db.Exec(q, u.Username, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.ID)
+	q := `UPDATE public.users SET username=$1,password=$2,salt=$3,email=$4,locked=$5,first=$6,last=$7,data=$8,tokens=$9,admin=$10 WHERE id=$11;`
+	_, err := db.Exec(q, u.Username, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.Admin, u.ID)
 	if err != nil {
 		fmt.Printf("WTF? %s\n", err.Error())
 		return err
@@ -113,8 +116,8 @@ func (db *DBM) SaveUser(u *User) error {
 // GetUser returns a User based on an ID.
 func (db *DBM) GetUser(id int64) (*User, error) {
 	var u User
-	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE id=$1 LIMIT 1", id).Scan(
-		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
+	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens,admin FROM public.users WHERE id=$1 LIMIT 1", id).Scan(
+		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens, &u.Admin)
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +128,8 @@ func (db *DBM) GetUser(id int64) (*User, error) {
 // GetUserByName for when you don't have an ID.
 func (db *DBM) GetUserByName(name string) (*User, error) {
 	var u User
-	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens FROM public.users WHERE username=$1 LIMIT 1", name).Scan(
-		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens)
+	err := db.QueryRow("SELECT id,username,password,salt,email,created,locked,first,last,data,tokens,admin FROM public.users WHERE username=$1 LIMIT 1", name).Scan(
+		&u.ID, &u.Username, &u.Password, &u.Salt, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Data, &u.Tokens, &u.Admin)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +174,7 @@ func (db *DBM) RemoveUserByName(name string) error {
 
 // GetUsers retrieves users, sorted by ID, optionally containing a keyword.
 func (db *DBM) GetUsers(match string) (*Users, error) {
-	rows, err := db.Query("SELECT id,username,email,created,locked,first,last FROM public.users WHERE username LIKE '%'||$1||'%' ORDER BY id;", match)
+	rows, err := db.Query("SELECT id,username,email,created,locked,first,last,admin FROM public.users WHERE username LIKE '%'||$1||'%' ORDER BY id;", match)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +183,7 @@ func (db *DBM) GetUsers(match string) (*Users, error) {
 	var users Users
 	for rows.Next() {
 		var u User
-		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last)
+		err = rows.Scan(&u.ID, &u.Username, &u.Email, &u.Created, &u.Locked, &u.First, &u.Last, &u.Admin)
 		if err != nil {
 			return nil, err
 		}
@@ -341,6 +344,7 @@ func (u *User) CheckPassword(password string) bool {
 	return false
 }
 
+// CompareDovecotHashAndPassword for systems where getting bcrypt support in Dovecot is a pain.
 func (u *User) CompareDovecotHashAndPassword(password string) bool {
 	a := strings.Split(u.Password, "$")
 	if len(a) != 5 {
@@ -363,4 +367,44 @@ func (u *User) CompareDovecotHashAndPassword(password string) bool {
 	}
 
 	return subtle.ConstantTimeCompare([]byte(a[4]), []byte(a2[4])) == 1
+}
+
+// AcceptablePassword does some superficial checking of a potential password.
+// It will fail the test if it contains user details or is all numbers.
+// Further policies have to be applied outside of this function.
+func (u *User) AcceptablePassword(password string) bool {
+	_, err := strconv.ParseInt(password, 10, 64)
+	if err == nil {
+		return false
+	}
+
+	password = strings.ToLower(password)
+	comp := strings.ToLower(u.Username)
+	if strings.Contains(password, comp) {
+		return false
+	}
+
+	if strings.Contains(comp, password) {
+		return false
+	}
+
+	comp = strings.ToLower(u.First)
+	if strings.Contains(password, comp) {
+		return false
+	}
+
+	if strings.Contains(comp, password) {
+		return false
+	}
+
+	comp = strings.ToLower(u.Last)
+	if strings.Contains(password, comp) {
+		return false
+	}
+
+	if strings.Contains(comp, password) {
+		return false
+	}
+
+	return true
 }

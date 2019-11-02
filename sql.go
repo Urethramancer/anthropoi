@@ -147,6 +147,7 @@ CREATE TABLE IF NOT EXISTS public.users
 	email character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	created timestamp with time zone,
 	locked boolean NOT NULL DEFAULT false,
+	admin boolean NOT NULL DEFAULT false,
 	first character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	last character varying(100) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
 	data json NOT NULL DEFAULT '{}'::json,
