@@ -24,10 +24,14 @@ func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 
 func (as *AccountServer) setPassword(w http.ResponseWriter, r *http.Request) {
 	msg := r.Context().Value("req").(RequestMsg)
-	as.L("%s, %s", msg.Token, msg.Password)
 	t := as.getToken(msg.Token)
 	if t == nil {
 		apierror(w, errorInvalidToken, 403)
+		return
+	}
+
+	if !t.User.AcceptablePassword(msg.Password) {
+		apierror(w, errorBadPassword, 406)
 		return
 	}
 

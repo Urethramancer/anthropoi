@@ -8,6 +8,7 @@ import (
 const (
 	errUserPassword   = "User and/or password unknown."
 	errorInvalidToken = "Invalid token. Please authenticate."
+	errorBadPassword  = "Bad or easily guessable password."
 )
 
 func apierror(w http.ResponseWriter, msg string, code int) {
