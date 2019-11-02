@@ -11,8 +11,7 @@ import (
 )
 
 func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
-	var msg AuthMsg
-	json.NewDecoder(r.Body).Decode(&msg)
+	msg := r.Context().Value("req").(RequestMsg)
 	reply := StatusReply{}
 
 	u, err := as.db.GetUserByName(msg.Username)
@@ -38,7 +37,7 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(data))
 }
 
-// Create or get an active token.
+// Create or get an active token for a user.
 func (as *AccountServer) createToken(u *anthropoi.User) string {
 	hash, ok := as.hashes[u.Username]
 	if ok {
@@ -64,4 +63,15 @@ func (as *AccountServer) createToken(u *anthropoi.User) string {
 	as.hashes[u.Username] = hash
 	as.tokens[hash] = &t
 	return hash
+}
+
+// Get an existing token by hash.
+func (as *AccountServer) getToken(hash string) *Token {
+	t, ok := as.tokens[hash]
+	if !ok {
+		return nil
+	}
+
+	t.Timestamp = time.Now()
+	return t
 }

@@ -65,23 +65,25 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 	as.api.Use(middleware.RequestID)
 	as.api.Use(middleware.Timeout(time.Second * 10))
 	as.api.Use(addJSONHeaders)
+	as.api.Use(as.decode_request)
 
+	as.api.NotFound(notfound)
 	as.api.Route("/", func(r chi.Router) {
-		r.NotFound(notfound)
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("v1"))
 		})
 
-		r.Route("/auth", func(r chi.Router) {
-			r.Post("/", as.authenticate)
-		})
+		r.Post("/auth", as.authenticate)
 
 		r.Route("/user", func(r chi.Router) {
-			r.Use(check_access)
+			r.Use(as.check_access)
 			r.Get("/", as.user)
-			r.Post("/password", as.password)
 		})
+	})
 
+	as.api.Route("/password", func(r chi.Router) {
+		r.Use(as.check_access)
+		r.Post("/", as.setPassword)
 	})
 
 	return &as

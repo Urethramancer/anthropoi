@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -23,15 +22,14 @@ func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 
 }
 
-type password struct {
-	// Token for the user who's changing the password.
-	Token string `json:"token"`
-	// Password to set.
-	Password string `json:"password"`
-}
+func (as *AccountServer) setPassword(w http.ResponseWriter, r *http.Request) {
+	msg := r.Context().Value("req").(RequestMsg)
+	as.L("%s, %s", msg.Token, msg.Password)
+	t := as.getToken(msg.Token)
+	if t == nil {
+		apierror(w, errorInvalidToken, 403)
+		return
+	}
 
-func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
-	var msg password
-	json.NewDecoder(r.Body).Decode(&msg)
-	as.L("%+v", msg)
+	as.L("Setting password for %s from %s", t.User.Username, r.RemoteAddr)
 }

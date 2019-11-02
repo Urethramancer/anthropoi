@@ -2,32 +2,38 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 )
 
-// AuthMsg for authentication.
-type AuthMsg struct {
-	// Username is required.
-	Username string `json:"username"`
-	// Password is required.
-	Password string `json:"password"`
-}
+func (as *AccountServer) decode_request(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
 
-// StatusReply is returned from all calls.
-type StatusReply struct {
-	// Message string.
-	Message string `json:"message"`
-	// Code is 0 if all went well. If this was embedded in another struct, there might be other data.
-	Code int `json:"code"`
+		var msg RequestMsg
+		err := json.NewDecoder(r.Body).Decode(&msg)
+		if err != nil {
+			apierror(w, err.Error(), 500)
+			as.E("Error decoding JSON for request from %s: %s", r.RemoteAddr, err.Error())
+			return
+		}
+
+		r = r.WithContext(context.WithValue(ctx, "req", msg))
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
 }
 
 // Check security token.
-func check_access(next http.Handler) http.Handler {
+func (as *AccountServer) check_access(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		r = r.WithContext(context.WithValue(ctx, "Authentication", "moo"))
-		w.Write([]byte("auth"))
-		// http.Error(w, "Unknown token", http.StatusForbidden)
+		msg := r.Context().Value("req").(RequestMsg)
+		t := as.getToken(msg.Token)
+		if t == nil {
+			apierror(w, errorInvalidToken, 403)
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
