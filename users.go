@@ -392,22 +392,26 @@ func (u *User) AcceptablePassword(password string) bool {
 		return false
 	}
 
-	comp = strings.ToLower(u.First)
-	if strings.Contains(password, comp) {
-		return false
+	if u.First != "" {
+		comp = strings.ToLower(u.First)
+		if strings.Contains(password, comp) {
+			return false
+		}
+
+		if strings.Contains(comp, password) {
+			return false
+		}
 	}
 
-	if strings.Contains(comp, password) {
-		return false
-	}
+	if u.Last != "" {
+		comp = strings.ToLower(u.Last)
+		if strings.Contains(password, comp) {
+			return false
+		}
 
-	comp = strings.ToLower(u.Last)
-	if strings.Contains(password, comp) {
-		return false
-	}
-
-	if strings.Contains(comp, password) {
-		return false
+		if strings.Contains(comp, password) {
+			return false
+		}
 	}
 
 	return true
