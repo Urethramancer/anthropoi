@@ -12,7 +12,7 @@ func main() {
 		env.Get("DB_NAME", "accounts"),
 		env.Get("DB_USERNAME", "postgres"),
 		env.Get("DB_PASSWORD", "postgres"),
-		env.Get("WEB_NOST", "127.0.0.1"),
+		env.Get("WEB_HOST", "127.0.0.1"),
 		env.Get("WEB_PORT", "8000"),
 	)
 
