@@ -346,7 +346,7 @@ func (u *User) CheckPassword(password string) bool {
 
 // CompareDovecotHashAndPassword for systems where getting bcrypt support in Dovecot is a pain.
 func (u *User) CompareDovecotHashAndPassword(password string) bool {
-	a := strings.Split(u.Password, "$")
+	a := u.SplitPasswordElements()
 	if len(a) != 5 {
 		return false
 	}
@@ -360,6 +360,7 @@ func (u *User) CompareDovecotHashAndPassword(password string) bool {
 	if err != nil {
 		return false
 	}
+
 	pw := GenerateDovecotPassword(password, u.Salt, rounds)
 	a2 := strings.Split(pw, "$")
 	if len(a2) != 5 {
@@ -367,6 +368,52 @@ func (u *User) CompareDovecotHashAndPassword(password string) bool {
 	}
 
 	return subtle.ConstantTimeCompare([]byte(a[4]), []byte(a2[4])) == 1
+}
+
+// SplitPasswordElements splits the stored password hash and returns it if it fits
+// any supported pattern (4 elements for bcrypt, 5 for Dovecot).
+func (u *User) SplitPasswordElements() []string {
+	a := strings.Split(u.Password, "$")
+	if len(a) < 4 || len(a) > 5 {
+		return nil
+	}
+
+	return a
+}
+
+// GetCost for bcrypt hashes.
+func (u *User) GetCost() int {
+	a := u.SplitPasswordElements()
+	if a == nil {
+		return 12
+	}
+
+	c, err := strconv.Atoi(a[2])
+	if err != nil {
+		return 12
+	}
+
+	return c
+}
+
+// GetRounds for Dovecot hashes.
+func (u *User) GetRounds() int {
+	a := u.SplitPasswordElements()
+	if a == nil {
+		return 50000
+	}
+
+	ar := strings.Split(a[2], "=")
+	if len(ar) < 2 {
+		return 50000
+	}
+
+	r, err := strconv.Atoi(ar[1])
+	if err != nil {
+		return 50000
+	}
+
+	return r
 }
 
 // AcceptablePassword does some superficial checking of a potential password.
