@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -35,5 +36,32 @@ func (as *AccountServer) setPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	as.L("Setting password for %s from %s", t.User.Username, r.RemoteAddr)
+	a := t.User.SplitPasswordElements()
+	if len(a) == 4 {
+		err := t.User.SetPassword(msg.Password, 0)
+		if err != nil {
+			apierror(w, err.Error(), 500)
+			return
+		}
+	} else {
+		t.User.SetDovecotPassword(msg.Password, 0)
+	}
+
+	err := as.db.SaveUser(t.User)
+	if err != nil {
+		apierror(w, err.Error(), 500)
+		return
+	}
+
+	reply := StatusReply{}
+	reply.Message = "Password changed."
+	data, err := json.Marshal(reply)
+	if err != nil {
+		apierror(w, err.Error(), 500)
+		return
+	}
+
+	w.Write([]byte(data))
+	as.invalidateToken(msg.Token)
+	as.L("Password for %s changed by %s", t.User.Username, r.RemoteAddr)
 }
