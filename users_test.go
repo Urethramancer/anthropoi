@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/Urethramancer/ansi"
 	"github.com/Urethramancer/anthropoi"
 )
@@ -30,6 +32,33 @@ func TestAcceptablePassword(t *testing.T) {
 		t.FailNow()
 	} else {
 		t.Log("Name & password similarity is considered invalid. Good.")
+	}
+}
+
+func TestGetCost(t *testing.T) {
+	pw, err := bcrypt.GenerateFromPassword([]byte("moo"), 10)
+	if err != nil {
+		t.Logf("Failed to generate bcrypt password.")
+		t.FailNow()
+	}
+	u := &anthropoi.User{Password: string(pw)}
+	c := u.GetCost()
+	if c == 10 {
+		t.Logf("Password %s%s%s has cost %d. Good.", ansi.Green, pw, ansi.Normal, u.GetCost())
+	} else {
+		t.Logf("Cost mismatch!")
+		t.FailNow()
+	}
+}
+
+func TestGetRounds(t *testing.T) {
+	u := anthropoi.User{Password: anthropoi.GenerateDovecotPassword("moo", "salt", 10000)}
+	r := u.GetRounds()
+	if r == 10000 {
+		t.Logf("Passwword %s%s%s has %d rounds. Good.", ansi.Green, u.Password, ansi.Normal, r)
+	} else {
+		t.Logf("Rounds mismatch.")
+		t.FailNow()
 	}
 }
 
