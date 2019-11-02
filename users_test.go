@@ -10,6 +10,29 @@ import (
 
 const pw = "secret passphrase"
 
+func TestAcceptablePassword(t *testing.T) {
+	u := anthropoi.User{
+		Username: "pierredelecto",
+		First:    "Pierre",
+		Last:     "Delecto",
+		Email:    "pierre@delecto.xxx",
+	}
+
+	if u.AcceptablePassword("12345") {
+		t.Logf("Validity check failed: Fully numeric passwords should not work!")
+		t.FailNow()
+	} else {
+		t.Log("Numeric password not accepted. Good.")
+	}
+
+	if u.AcceptablePassword("pierre") {
+		t.Logf("Validity check failed: Name as password should not work!")
+		t.FailNow()
+	} else {
+		t.Log("Name & password similarity is considered invalid. Good.")
+	}
+}
+
 func TestSetPassword(t *testing.T) {
 	u := anthropoi.User{}
 	for cost := 10; cost < 14; cost++ {
@@ -18,7 +41,7 @@ func TestSetPassword(t *testing.T) {
 		stop := time.Now()
 		if err != nil {
 			t.Logf("Error setting password: %s", err.Error())
-			t.Fail()
+			t.FailNow()
 		} else {
 			t.Logf("Cost %d took %v to generate %s%s%s from %s%s%s\n",
 				cost, stop.Sub(start), ansi.Green, u.Password, ansi.Normal, ansi.Green, pw, ansi.Normal)
