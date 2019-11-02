@@ -370,9 +370,13 @@ func (u *User) CompareDovecotHashAndPassword(password string) bool {
 }
 
 // AcceptablePassword does some superficial checking of a potential password.
-// It will fail the test if it contains user details or is all numbers.
+// It will fail the test if it's too short, contains user details or is all numbers.
 // Further policies have to be applied outside of this function.
 func (u *User) AcceptablePassword(password string) bool {
+	if len(password) < 8 {
+		return false
+	}
+
 	_, err := strconv.ParseInt(password, 10, 64)
 	if err == nil {
 		return false
