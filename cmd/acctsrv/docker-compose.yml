@@ -1,0 +1,14 @@
+version: '3'
+services:
+    acctsrv:
+        image: acctsrv:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '127.0.0.1:9002:8000'
+        environment:
+            - DB_HOST=localhost
+            - DB_PASSWORD=FoMdi8n2qfs55V
+        volumes:
+            - /var/run/postgresql/:/var/run/postgresql/
