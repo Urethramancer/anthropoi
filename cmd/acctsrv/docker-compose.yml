@@ -1,6 +1,6 @@
 version: '3'
 services:
-    acctsrv:
+    app:
         image: acctsrv:latest
         build:
             context: .
@@ -8,7 +8,7 @@ services:
         ports:
             - '127.0.0.1:9002:8000'
         environment:
-            - DB_HOST=localhost
+            - DB_HOST=/var/run/postgresql
             - DB_PASSWORD=FoMdi8n2qfs55V
         volumes:
             - /var/run/postgresql/:/var/run/postgresql/

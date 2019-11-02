@@ -17,6 +17,15 @@ func main() {
 	)
 
 	as.Start()
+	if as.db.DatabaseExists("accounts") {
+		println("DB OK!")
+	}
+	err := as.db.Ping()
+	if err != nil {
+		as.E("DB ping: %s", err.Error())
+	}
+	mm := as.db.GetVar("mailmode")
+	as.L("Mailmode: '%s'", mm)
 	<-daemon.BreakChannel()
 	as.Stop()
 }
