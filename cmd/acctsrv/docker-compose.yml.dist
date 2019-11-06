@@ -6,10 +6,10 @@ services:
             context: .
             dockerfile: Dockerfile
         ports:
-			# Change the first port as needed
+            # Change the first port as needed
             - '127.0.0.1:9002:8000'
         environment:
-			# This default works on a local socket-only database with no password
+            # This default works on a local socket-only database with no password
             - DB_HOST=/var/run/postgresql
             - DB_PASSWORD=
         volumes:
