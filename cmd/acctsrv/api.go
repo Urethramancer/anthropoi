@@ -19,7 +19,7 @@ func notfound(w http.ResponseWriter, r *http.Request) {
 }
 
 func preflight(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Headers", "POST,GET")
+	w.Header().Set("Access-Control-Allow-Methods", "POST,GET")
 	w.Header().Set("Access-Control-Max-Age", "86400")
 	http.Error(w, "", 204)
 }
