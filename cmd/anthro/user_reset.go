@@ -16,7 +16,6 @@ import (
 type CmdUserReset struct {
 	opt.DefaultHelp
 	User    string `placeholder:"USERNAME" help:"Name of user to add." opt:"required"`
-	Len     int    `short:"l" long:"length" help:"Length of password." default:"14"`
 	Length  int    `short:"L" long:"length" help:"Length of password. Minimum allowed is 12 characters." default:"14"`
 	Cost    int    `short:"c" long:"cost" help:"Cost of bcrypt hashing algorithm. Tweak this to around 100ms per hash." default:"11"`
 	Rounds  int    `short:"r" long:"rounds" help:"Number of rounds to hash SHA512-CRYPT." default:"50000"`
