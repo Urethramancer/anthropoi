@@ -61,6 +61,7 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 
 	as.api = chi.NewRouter()
 	as.api.Use(middleware.NoCache)
+	as.api.Use(addCORS)
 	as.api.Use(middleware.RealIP)
 	as.api.Use(middleware.RequestID)
 	as.api.Use(middleware.Timeout(time.Second * 10))
