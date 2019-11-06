@@ -37,7 +37,7 @@ func (db *DBM) buildAliasList(rows *sql.Rows) (*Aliases, error) {
 	var aliases Aliases
 	for rows.Next() {
 		var a Alias
-		err := rows.Scan(&a.Alias, &a.Target)
+		err := rows.Scan(&a.Alias)
 		if err != nil {
 			return nil, err
 		}
