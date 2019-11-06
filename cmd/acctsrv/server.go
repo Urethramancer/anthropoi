@@ -65,32 +65,36 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 	as.api.Use(middleware.RealIP)
 	as.api.Use(middleware.RequestID)
 	as.api.Use(middleware.Timeout(time.Second * 10))
-	as.api.Use(addJSONHeaders)
-	as.api.Use(as.decode_request)
-
 	as.api.NotFound(notfound)
+
 	as.api.Route("/", func(r chi.Router) {
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			w.Write([]byte("v1"))
-		})
+		r.Options("/", preflight)
+	})
 
-		r.Post("/auth", as.authenticate)
-
-		r.Route("/user", func(r chi.Router) {
-			r.Use(as.check_access)
-			r.Get("/", as.user)
-		})
+	as.api.Route("/auth", func(r chi.Router) {
+		r.Use(addJSONHeaders)
+		r.Use(as.decode_request)
+		r.Post("/", as.authenticate)
 	})
 
 	as.api.Route("/password", func(r chi.Router) {
+		r.Use(addJSONHeaders)
 		r.Use(as.check_access)
 		r.Post("/", as.password)
 	})
 
 	as.api.Route("/aliases", func(r chi.Router) {
+		r.Use(addJSONHeaders)
 		r.Use(as.check_access)
 		r.Post("/", as.aliases)
 	})
+
+	as.api.Route("/user", func(r chi.Router) {
+		r.Use(addJSONHeaders)
+		r.Use(as.check_access)
+		r.Get("/", as.user)
+	})
+
 	return &as
 }
 

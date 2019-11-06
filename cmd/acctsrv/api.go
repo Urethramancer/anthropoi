@@ -18,6 +18,12 @@ func notfound(w http.ResponseWriter, r *http.Request) {
 	apierror(w, "Unknown endpoint.", 404)
 }
 
+func preflight(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Headers", "POST,GET")
+	w.Header().Set("Access-Control-Max-Age", "86400")
+	http.Error(w, "", 204)
+}
+
 // Get details, update details.
 func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 
