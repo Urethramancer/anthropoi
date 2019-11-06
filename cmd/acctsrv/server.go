@@ -84,9 +84,13 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 
 	as.api.Route("/password", func(r chi.Router) {
 		r.Use(as.check_access)
-		r.Post("/", as.setPassword)
+		r.Post("/", as.password)
 	})
 
+	as.api.Route("/aliases", func(r chi.Router) {
+		r.Use(as.check_access)
+		r.Post("/", as.aliases)
+	})
 	return &as
 }
 

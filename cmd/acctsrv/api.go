@@ -23,7 +23,7 @@ func (as *AccountServer) user(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (as *AccountServer) setPassword(w http.ResponseWriter, r *http.Request) {
+func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 	msg := r.Context().Value("req").(RequestMsg)
 	t := as.getToken(msg.Token)
 	if t == nil {
@@ -64,4 +64,27 @@ func (as *AccountServer) setPassword(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(data))
 	as.invalidateToken(msg.Token)
 	as.L("Password for %s changed by %s", t.User.Username, r.RemoteAddr)
+}
+
+func (as *AccountServer) aliases(w http.ResponseWriter, r *http.Request) {
+	msg := r.Context().Value("req").(RequestMsg)
+	t := as.getToken(msg.Token)
+	if t == nil {
+		apierror(w, errorInvalidToken, 403)
+		return
+	}
+
+	a, err := as.db.GetAliasesForUser(t.User)
+	if err != nil {
+		apierror(w, err.Error(), 500)
+		return
+	}
+
+	data, err := json.Marshal(a)
+	if err != nil {
+		apierror(w, err.Error(), 500)
+		return
+	}
+
+	w.Write([]byte(data))
 }

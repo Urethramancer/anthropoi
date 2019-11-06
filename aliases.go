@@ -1,5 +1,7 @@
 package anthropoi
 
+import "database/sql"
+
 // Alias object.
 type Alias struct {
 	Alias  string `json:"alias"`
@@ -31,18 +33,11 @@ func (db *DBM) GetAlias(alias string) (string, error) {
 	return t, nil
 }
 
-// SearchAliases finds aliases or targets containing the match string. Leave blank to list everything.
-func (db *DBM) SearchAliases(match string) (*Aliases, error) {
-	rows, err := db.Query("SELECT alias,target FROM public.aliases WHERE alias||target LIKE '%'||$1||'%' ORDER BY target;", match)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rows.Close()
+func (db *DBM) buildAliasList(rows *sql.Rows) (*Aliases, error) {
 	var aliases Aliases
 	for rows.Next() {
 		var a Alias
-		err = rows.Scan(&a.Alias, &a.Target)
+		err := rows.Scan(&a.Alias, &a.Target)
 		if err != nil {
 			return nil, err
 		}
@@ -51,6 +46,29 @@ func (db *DBM) SearchAliases(match string) (*Aliases, error) {
 	}
 
 	return &aliases, nil
+}
+
+// GetAliasesForUser returns all addresses pointing to this user's address.
+// This call is specific to mail mode.
+func (db *DBM) GetAliasesForUser(u *User) (*Aliases, error) {
+	rows, err := db.Query("SELECT alias FROM public.aliases WHERE target=$1;", u.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	return db.buildAliasList(rows)
+}
+
+// SearchAliases finds aliases or targets containing the match string. Leave blank to list everything.
+func (db *DBM) SearchAliases(match string) (*Aliases, error) {
+	rows, err := db.Query("SELECT alias,target FROM public.aliases WHERE alias||target LIKE '%'||$1||'%' ORDER BY target;", match)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	return db.buildAliasList(rows)
 }
 
 // RemoveAlias deletes an alias.
