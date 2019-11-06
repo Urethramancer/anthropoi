@@ -50,6 +50,7 @@ func addJSONHeaders(next http.Handler) http.Handler {
 func addCORS(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
 		next.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(fn)
