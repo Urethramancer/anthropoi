@@ -11,8 +11,8 @@ func main() {
 		env.Get("DB_PORT", "5432"),
 		env.Get("DB_NAME", "accounts"),
 		env.Get("DB_USERNAME", "postgres"),
-		env.Get("DB_PASSWORD", "postgres"),
-		env.Get("WEB_HOST", "127.0.0.1"),
+		env.Get("DB_PASSWORD", ""),
+		env.Get("WEB_HOST", "0.0.0.0"),
 		env.Get("WEB_PORT", "8000"),
 	)
 
@@ -24,8 +24,6 @@ func main() {
 	if err != nil {
 		as.E("DB ping: %s", err.Error())
 	}
-	mm := as.db.GetVar("mailmode")
-	as.L("Mailmode: '%s'", mm)
 	<-daemon.BreakChannel()
 	as.Stop()
 }
