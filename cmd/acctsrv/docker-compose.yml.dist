@@ -12,5 +12,6 @@ services:
             # This default works on a local socket-only database with no password
             - DB_HOST=/var/run/postgresql
             - DB_PASSWORD=
+			- WEB_HOST=0.0.0.0
         volumes:
             - /var/run/postgresql/:/var/run/postgresql/
