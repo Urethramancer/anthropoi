@@ -161,6 +161,18 @@ DROP TRIGGER IF EXISTS trigger_users_timestamp ON public.users;
 CREATE TRIGGER trigger_users_timestamp
 	BEFORE INSERT ON public.users
 	FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
+
+CREATE TABLE IF NOT EXISTS public.resetkeys
+(
+	key character varying(64) COLLATE pg_catalog."default" NOT NULL DEFAULT '',
+	account integer NOT NULL,
+	CONSTRAINT resetkeys_pkey PRIMARY KEY(key),
+	CONSTRAINT resetkeys_account_fkey FOREIGN KEY (account)
+	REFERENCES public.users (id) MATCH SIMPLE
+		ON UPDATE CASCADE
+		ON DELETE CASCADE,
+	expiry timestamp with time zone NOT NULL
+) WITH (OIDS = FALSE) TABLESPACE pg_default;
 COMMIT WORK;
 `
 
@@ -171,4 +183,5 @@ const aliasesTable = `CREATE TABLE public.aliases
 	CONSTRAINT alias_prim PRIMARY KEY (alias, target),
 	CONSTRAINT alias_is_unique UNIQUE (alias)
 )
+
 `
