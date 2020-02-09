@@ -7,7 +7,7 @@ import (
 	"github.com/Urethramancer/signor/opt"
 )
 
-// Cmdinit options.
+// CmdInit options.
 type CmdInit struct {
 	opt.DefaultHelp
 	Mail bool `short:"m" long:"mail" help:"Set up the database for mail server use. This sets some flags and adds an aliases table."`
