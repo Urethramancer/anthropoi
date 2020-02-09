@@ -56,8 +56,8 @@ func main() {
 	}
 
 	host = env.Get("DB_HOST", Options.Host)
-	port = env.Get("DB_PORT", "5432")
-	username = env.Get("DB_USERNAME", "postgres")
+	port = env.Get("DB_PORT", Options.Port)
+	username = env.Get("DB_USERNAME", Options.Username)
 	password = env.Get("DB_PASSWORD", "")
 	name = env.Get("DB_NAME", anthropoi.DefaultName)
 	if Options.SSL {
