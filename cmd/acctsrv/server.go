@@ -72,32 +72,10 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 		r.Use(as.decode_request)
 		r.Options("/", preflight)
 		r.Post("/auth", as.authenticate)
+		r.Post("/", as.password)
 		r.Post("/aliases", as.aliases)
+		r.Get("/", as.user)
 	})
-
-	// as.api.Route("/auth", func(r chi.Router) {
-	// 	r.Use(addJSONHeaders)
-	// 	r.Use(as.decode_request)
-	// 	r.Post("/", as.authenticate)
-	// })
-
-	// as.api.Route("/password", func(r chi.Router) {
-	// 	r.Use(addJSONHeaders)
-	// 	r.Use(as.check_access)
-	// 	r.Post("/", as.password)
-	// })
-
-	// as.api.Route("/aliases", func(r chi.Router) {
-	// 	r.Use(addJSONHeaders)
-	// 	r.Use(as.check_access)
-	// 	r.Post("/", as.aliases)
-	// })
-
-	// as.api.Route("/user", func(r chi.Router) {
-	// 	r.Use(addJSONHeaders)
-	// 	r.Use(as.check_access)
-	// 	r.Get("/", as.user)
-	// })
 
 	return &as
 }
