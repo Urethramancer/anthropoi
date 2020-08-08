@@ -28,6 +28,7 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 	as.L("User %s authenticated from %s", u.Username, r.RemoteAddr)
 	reply := StatusReply{}
 	reply.Message = as.createToken(u)
+	reply.OK = true
 	data, err := json.Marshal(reply)
 	if err != nil {
 		apierror(w, err.Error())
