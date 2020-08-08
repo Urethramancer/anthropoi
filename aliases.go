@@ -23,7 +23,7 @@ func (db *DBM) SetAlias(alias, target string) error {
 // GetAlias returns the target for an alias.
 func (db *DBM) GetAlias(alias string) (string, error) {
 	var t string
-	err := db.QueryRow("SELECT target FROM public.aliases WHERE alias=$1;", alias).Scan(&t)
+	err := db.QueryRow("SELECT target FROM public.aliases WHERE alias=$1 LIMIT 1;", alias).Scan(&t)
 	if err != nil {
 		return "", err
 	}
@@ -34,7 +34,7 @@ func (db *DBM) GetAlias(alias string) (string, error) {
 // GetAliasesForUser returns all addresses pointing to this user's address.
 // This call is specific to mail mode.
 func (db *DBM) GetAliasesForUser(u *User) (*Aliases, error) {
-	rows, err := db.Query("SELECT alias FROM public.aliases WHERE target=$1;", u.Username)
+	rows, err := db.Query("SELECT alias,target FROM public.aliases WHERE target=$1;", u.Username)
 	if err != nil {
 		return nil, err
 	}
