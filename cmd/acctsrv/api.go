@@ -86,6 +86,7 @@ func (as *AccountServer) aliases(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	as.L("Returned aliases: %#v", a)
 	data, err := json.Marshal(a)
 	if err != nil {
 		apierror(w, err.Error(), 500)
