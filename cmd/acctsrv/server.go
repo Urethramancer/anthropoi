@@ -72,9 +72,9 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 		r.Use(as.decode_request)
 		r.Options("/", preflight)
 		r.Post("/auth", as.authenticate)
-		r.Post("/", as.password)
+		r.Post("/password", as.password)
 		r.Post("/aliases", as.aliases)
-		r.Get("/", as.user)
+		r.Get("/user", as.user)
 	})
 
 	return &as
