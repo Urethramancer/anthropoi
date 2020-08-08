@@ -68,32 +68,36 @@ func NewAccountServer(dbhost, dbport, dbname, dbuser, dbpass, host, port string)
 	as.api.NotFound(notfound)
 
 	as.api.Route("/", func(r chi.Router) {
-		r.Options("/", preflight)
-	})
-
-	as.api.Route("/auth", func(r chi.Router) {
 		r.Use(addJSONHeaders)
 		r.Use(as.decode_request)
-		r.Post("/", as.authenticate)
+		r.Options("/", preflight)
+		r.Post("/auth", as.authenticate)
+		r.Post("/aliases", as.aliases)
 	})
 
-	as.api.Route("/password", func(r chi.Router) {
-		r.Use(addJSONHeaders)
-		r.Use(as.check_access)
-		r.Post("/", as.password)
-	})
+	// as.api.Route("/auth", func(r chi.Router) {
+	// 	r.Use(addJSONHeaders)
+	// 	r.Use(as.decode_request)
+	// 	r.Post("/", as.authenticate)
+	// })
 
-	as.api.Route("/aliases", func(r chi.Router) {
-		r.Use(addJSONHeaders)
-		r.Use(as.check_access)
-		r.Post("/", as.aliases)
-	})
+	// as.api.Route("/password", func(r chi.Router) {
+	// 	r.Use(addJSONHeaders)
+	// 	r.Use(as.check_access)
+	// 	r.Post("/", as.password)
+	// })
 
-	as.api.Route("/user", func(r chi.Router) {
-		r.Use(addJSONHeaders)
-		r.Use(as.check_access)
-		r.Get("/", as.user)
-	})
+	// as.api.Route("/aliases", func(r chi.Router) {
+	// 	r.Use(addJSONHeaders)
+	// 	r.Use(as.check_access)
+	// 	r.Post("/", as.aliases)
+	// })
+
+	// as.api.Route("/user", func(r chi.Router) {
+	// 	r.Use(addJSONHeaders)
+	// 	r.Use(as.check_access)
+	// 	r.Get("/", as.user)
+	// })
 
 	return &as
 }
