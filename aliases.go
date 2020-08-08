@@ -43,7 +43,7 @@ func (db *DBM) GetAliasesForUser(u *User) (*Aliases, error) {
 	var aliases Aliases
 	for rows.Next() {
 		var a Alias
-		err := rows.Scan(&a.Alias)
+		err := rows.Scan(&a.Alias, &a.Target)
 		if err != nil {
 			return nil, err
 		}
