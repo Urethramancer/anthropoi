@@ -71,6 +71,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 
 	reply := StatusReply{}
 	reply.Message = "Password changed."
+	reply.OK = true
 	data, err := json.Marshal(reply)
 	if err != nil {
 		apierror(w, err.Error())
