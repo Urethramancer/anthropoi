@@ -8,12 +8,16 @@ type RequestMsg struct {
 	Username string `json:"username,omitempty"`
 	// Password to authenticate or set.
 	Password string `json:"password,omitempty"`
+	// CurrentPassword is used in password change requests.
+	CurrentPassword string `json:"currentpassword,omitempty"`
+	// PasswordAgain is used for server-side form validation in change requests.
+	PasswordAgain string `json:"passwordagain,omitempty"`
 }
 
 // StatusReply is returned from all calls.
 type StatusReply struct {
 	// Message string.
 	Message string `json:"message"`
-	// Code is 0 if all went well. If this was embedded in another struct, there might be other data.
-	Code int `json:"code"`
+	// OK is false true if all went well. On false, the message is an error message.
+	OK bool `json:"ok"`
 }

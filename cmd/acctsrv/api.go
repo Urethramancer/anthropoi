@@ -15,7 +15,7 @@ type Token struct {
 }
 
 func notfound(w http.ResponseWriter, r *http.Request) {
-	apierror(w, "Unknown endpoint.", 404)
+	apierror(w, "Unknown endpoint.")
 }
 
 func preflight(w http.ResponseWriter, r *http.Request) {
@@ -33,12 +33,16 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 	msg := r.Context().Value("req").(RequestMsg)
 	t := as.getToken(msg.Token)
 	if t == nil {
-		apierror(w, errorInvalidToken, 403)
+		apierror(w, errorInvalidToken)
 		return
 	}
 
+	if !t.User.CompareDovecotHashAndPassword(msg.CurrentPassword) {
+		apierror(w, errorWrongPassword)
+	}
+
 	if !t.User.AcceptablePassword(msg.Password) {
-		apierror(w, errorBadPassword, 406)
+		apierror(w, errorBadPassword)
 		return
 	}
 
@@ -46,7 +50,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 	if len(a) == 4 {
 		err := t.User.SetPassword(msg.Password, 0)
 		if err != nil {
-			apierror(w, err.Error(), 500)
+			apierror(w, err.Error())
 			return
 		}
 	} else {
@@ -55,7 +59,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 
 	err := as.db.SaveUser(t.User)
 	if err != nil {
-		apierror(w, err.Error(), 500)
+		apierror(w, err.Error())
 		return
 	}
 
@@ -63,7 +67,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 	reply.Message = "Password changed."
 	data, err := json.Marshal(reply)
 	if err != nil {
-		apierror(w, err.Error(), 500)
+		apierror(w, err.Error())
 		return
 	}
 
@@ -76,20 +80,20 @@ func (as *AccountServer) aliases(w http.ResponseWriter, r *http.Request) {
 	msg := r.Context().Value("req").(RequestMsg)
 	t := as.getToken(msg.Token)
 	if t == nil {
-		apierror(w, errorInvalidToken, 403)
+		apierror(w, errorInvalidToken)
 		return
 	}
 
 	a, err := as.db.GetAliasesForUser(t.User)
 	if err != nil {
-		apierror(w, err.Error(), 500)
+		apierror(w, err.Error())
 		return
 	}
 
 	as.L("Returned aliases: %#v", a)
 	data, err := json.Marshal(a)
 	if err != nil {
-		apierror(w, err.Error(), 500)
+		apierror(w, err.Error())
 		return
 	}
 

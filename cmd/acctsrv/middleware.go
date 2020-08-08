@@ -13,7 +13,7 @@ func (as *AccountServer) decode_request(next http.Handler) http.Handler {
 		var msg RequestMsg
 		err := json.NewDecoder(r.Body).Decode(&msg)
 		if err != nil {
-			apierror(w, err.Error(), 500)
+			apierror(w, err.Error())
 			as.E("Error decoding JSON for request from %s: %s", r.RemoteAddr, err.Error())
 			return
 		}
@@ -30,7 +30,7 @@ func (as *AccountServer) check_access(next http.Handler) http.Handler {
 		msg := r.Context().Value("req").(RequestMsg)
 		t := as.getToken(msg.Token)
 		if t == nil {
-			apierror(w, errorInvalidToken, 403)
+			apierror(w, errorInvalidToken)
 			return
 		}
 

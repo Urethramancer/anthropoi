@@ -15,13 +15,13 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 
 	u, err := as.db.GetUserByName(msg.Username)
 	if err != nil {
-		apierror(w, errUserPassword, 403)
+		apierror(w, errUserPassword)
 		return
 	}
 
 	if !u.CompareDovecotHashAndPassword(msg.Password) {
 		as.L("User %s failed to authenticate from %s", u.Username, r.RemoteAddr)
-		apierror(w, errUserPassword, 403)
+		apierror(w, errUserPassword)
 		return
 	}
 
@@ -30,7 +30,7 @@ func (as *AccountServer) authenticate(w http.ResponseWriter, r *http.Request) {
 	reply.Message = as.createToken(u)
 	data, err := json.Marshal(reply)
 	if err != nil {
-		apierror(w, err.Error(), 500)
+		apierror(w, err.Error())
 		return
 	}
 
