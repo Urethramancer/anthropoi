@@ -39,6 +39,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 
 	if !t.User.CompareDovecotHashAndPassword(msg.CurrentPassword) {
 		apierror(w, errorWrongPassword)
+		return
 	}
 
 	if !t.User.AcceptablePassword(msg.Password) {
