@@ -100,7 +100,6 @@ func (as *AccountServer) aliases(w http.ResponseWriter, r *http.Request) {
 	if a.List[0].Alias == a.List[0].Target {
 		a.List = a.List[1:]
 	}
-	as.L("Returned aliases: %#v", a)
 	data, err := json.Marshal(a)
 	if err != nil {
 		apierror(w, err.Error())
