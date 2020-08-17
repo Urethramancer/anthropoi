@@ -83,7 +83,7 @@ func (as *AccountServer) password(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if msg.Password != msg.PasswordAgain {
-		apierror(w, errorPasswordMismatch)
+		apierror(w, errPasswordMismatch)
 		return
 	}
 
@@ -146,6 +146,39 @@ func (as *AccountServer) aliases(w http.ResponseWriter, r *http.Request) {
 		a.List = a.List[1:]
 	}
 	data, err := json.Marshal(a)
+	if err != nil {
+		apierror(w, err.Error())
+		return
+	}
+
+	w.Write([]byte(data))
+}
+
+// setmail sets the recovery e-mail on a user's account.
+func (as *AccountServer) setmail(w http.ResponseWriter, r *http.Request) {
+	msg := r.Context().Value("req").(RequestMsg)
+	t := as.getToken(msg.Token)
+	if t == nil {
+		apierror(w, errorInvalidToken)
+		return
+	}
+
+	if msg.Email == "" {
+		apierror(w, errMissingEmail)
+		return
+	}
+
+	t.User.Email = msg.Email
+	err := as.db.SetEmail(t.User)
+	if err != nil {
+		apierror(w, errSettingRecEmail)
+		return
+	}
+
+	reply := StatusReply{}
+	reply.Message = "Recovery e-mail changed."
+	reply.OK = true
+	data, err := json.Marshal(reply)
 	if err != nil {
 		apierror(w, err.Error())
 		return

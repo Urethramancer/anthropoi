@@ -12,6 +12,8 @@ type RequestMsg struct {
 	CurrentPassword string `json:"currentpassword,omitempty"`
 	// PasswordAgain is used for server-side form validation in change requests.
 	PasswordAgain string `json:"passwordagain,omitempty"`
+	// Email for recovery.
+	Email string `json:"email,omitempty"`
 }
 
 // StatusReply is returned from all calls.
