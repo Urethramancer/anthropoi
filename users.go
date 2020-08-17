@@ -1,7 +1,6 @@
 package anthropoi
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -88,6 +87,7 @@ func (db *DBM) AddUser(username, password, email, first, last, data, tokens stri
 }
 
 // UpdateUser saves an existing user by ID.
+// Potentially slower than updating individual columns, and needs changing if the schema changes.
 func (db *DBM) SaveUser(u *User) error {
 	if u.Data == "" {
 		u.Data = "{}"
@@ -100,10 +100,19 @@ func (db *DBM) SaveUser(u *User) error {
 	q := `UPDATE public.users SET username=$1,password=$2,salt=$3,email=$4,locked=$5,first=$6,last=$7,data=$8,tokens=$9,admin=$10 WHERE id=$11;`
 	_, err := db.Exec(q, u.Username, u.Password, u.Salt, u.Email, u.Locked, u.First, u.Last, u.Data, u.Tokens, u.Admin, u.ID)
 	if err != nil {
-		fmt.Printf("WTF? %s\n", err.Error())
 		return err
 	}
 
+	return nil
+}
+
+// SetEmail updates the recovery e-mail for a user.
+func (db *DBM) SetEmail(u *User) error {
+	q := `UPDATE public.users SER email=$1 WHERE id=$2;`
+	_, err := db.Exec(q, u.Email, u.ID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
