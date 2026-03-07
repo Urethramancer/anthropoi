@@ -10,7 +10,7 @@ import (
 // CmdUserEdit options.
 type CmdUserEdit struct {
 	opt.DefaultHelp
-	User string `placeholder:"USERNAME" help:"Name of user to add." opt:"required"`
+	User string `placeholder:"USERNAME" help:"Name of user to edit." opt:"required"`
 }
 
 // Run edit
